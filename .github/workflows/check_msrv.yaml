@@ -32,5 +32,5 @@ jobs:
         run: |
           MSRV="${{ steps.data-msrv.outputs.current }}"
           rustup toolchain install "$MSRV" --profile minimal
-          rustup run "$MSRV" cargo check -p oracle-core --all-targets
-          rustup run "$MSRV" cargo test -p oracle-core
+          rustup run "$MSRV" cargo check -p oracle-core --all-targets --locked
+          rustup run "$MSRV" cargo test -p oracle-core --locked

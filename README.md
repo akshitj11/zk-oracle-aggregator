@@ -25,7 +25,7 @@ Details: [docs/WHY.md](docs/WHY.md) · Architecture: [docs/ARCHITECTURE.md](docs
 
 ## Quick start
 
-**Requirements:** Rust 1.81+, Docker (for Postgres).
+**Requirements:** Rust 1.85+, Docker (for Postgres).
 
 ```bash
 # Build and test
