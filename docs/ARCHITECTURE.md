@@ -19,9 +19,17 @@ flowchart TB
 | Core library | `oracle-core` | Active |
 | HTTP fetcher | `oracle-fetcher` | Active |
 | API server | `oracle-server` | Health only |
-| Aggregator CLI | `oracle-aggregator` | Planned (M2) |
+| Aggregator CLI | `oracle-aggregator` | Active |
 | Prover / verifier | `oracle-prover`, `oracle-verifier` | Planned (M3) |
 | Chain submitter | `oracle-submitter` | Planned (M6) |
+
+## Aggregation pipeline (implemented)
+
+1. Input: `Vec<SourceResponse>` (JSON on stdin for CLI).
+2. `remove_outliers` at threshold `0.70`.
+3. If agreement ratio &lt; `0.60`, mark `disputed`.
+4. `weighted_median` on remaining sources (confidence as weight).
+5. Output: `AggregationResult` with `rust_decimal` fields for reproducibility.
 
 ## Fetch pipeline (implemented)
 

@@ -50,4 +50,4 @@ flowchart LR
   M5 --> M6[M6 on-chain Sepolia]
 ```
 
-**Current:** M0–M1 (fetcher, health API, CI). M2–M6 planned.
+**Current:** M0–M2 (fetcher, aggregation, health API, CI). M3–M6 planned.

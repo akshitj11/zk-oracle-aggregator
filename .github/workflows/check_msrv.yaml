@@ -21,19 +21,16 @@ jobs:
         with:
           tool: cargo-msrv
 
-      - name: Get current msrv
+      - name: Read MSRV from crate manifest
         id: data-msrv
         run: |
-          current_msrv=$(cargo msrv --manifest-path crates/oracle-core/Cargo.toml show --output-format minimal);
-          echo "current msrv: $current_msrv";
-          echo "current=$current_msrv" >> "$GITHUB_OUTPUT";
+          current_msrv=$(cargo msrv --manifest-path crates/oracle-core/Cargo.toml show --output-format minimal | tr -d '[:space:]')
+          echo "current msrv: $current_msrv"
+          echo "current=$current_msrv" >> "$GITHUB_OUTPUT"
 
-      - name: Run cargo msrv
-        run: cargo msrv --manifest-path crates/oracle-core/Cargo.toml verify --min ${{ steps.data-msrv.outputs.current }}
-
-      - name: echo msrv info
-        if: failure()
-        run: |-
-          echo "current msrv: ${{ steps.data-msrv.outputs.current }}";
-          new_msrv=$(cargo msrv show --output-format minimal);
-          echo "new msrv: $new_msrv";
+      - name: Build and test at MSRV
+        run: |
+          MSRV="${{ steps.data-msrv.outputs.current }}"
+          rustup toolchain install "$MSRV" --profile minimal
+          rustup run "$MSRV" cargo check -p oracle-core --all-targets
+          rustup run "$MSRV" cargo test -p oracle-core
