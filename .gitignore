@@ -1,0 +1,13 @@
+/target/
+**/*.rs.bk
+.env
+.env.*
+!.env.example
+keys/
+*.pem
+.DS_Store
+.idea/
+.vscode/
+x-ray/
+.sqlx/
+config/sources.toml

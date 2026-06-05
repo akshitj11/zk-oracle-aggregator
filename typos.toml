@@ -1,0 +1,20 @@
+[files]
+extend-exclude = ["docs/diagrams/*"]
+
+[default.extend-words]
+Groth16 = "Groth16"
+BN254 = "BN254"
+arkworks = "arkworks"
+sqlx = "sqlx"
+blake3 = "blake3"
+reqwest = "reqwest"
+nextest = "nextest"
+serde = "serde"
+toml = "toml"
+axum = "axum"
+Sepolia = "Sepolia"
+Groth = "Groth"
+r1cs = "r1cs"
+R1CS = "R1CS"
+snark = "snark"
+SNARK = "SNARK"

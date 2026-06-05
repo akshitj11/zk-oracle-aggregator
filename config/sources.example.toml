@@ -1,0 +1,10 @@
+# Example sources for local / integration testing (wiremock or public mocks).
+# Copy to sources.toml and adjust URLs for real APIs when ready.
+
+[[sources]]
+id = "mock-yes"
+url = "http://127.0.0.1:0/yes"
+
+[[sources]]
+id = "mock-no"
+url = "http://127.0.0.1:0/no"

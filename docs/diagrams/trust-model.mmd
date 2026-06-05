@@ -1,0 +1,17 @@
+flowchart TB
+  subgraph before [Traditional optimistic oracle]
+    M1[Market question]
+    V1[Token vote / committee]
+    C1[Contract trusts reported outcome]
+    M1 --> V1 --> C1
+  end
+
+  subgraph after [ZK oracle aggregator]
+    M2[Market question]
+    S2[N independent sources]
+    A2[Honest aggregation]
+    P2[Groth16 proof]
+    V2[Verifier]
+    C2[Contract settles if proof valid]
+    M2 --> S2 --> A2 --> P2 --> V2 --> C2
+  end
