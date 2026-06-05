@@ -1,5 +1,5 @@
 [files]
-extend-exclude = ["docs/diagrams/*"]
+extend-exclude = ["docs/diagrams/*", "target/**", "Cargo.lock"]
 
 [default.extend-words]
 Groth16 = "Groth16"

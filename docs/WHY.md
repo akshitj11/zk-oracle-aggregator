@@ -32,7 +32,7 @@ This system fetches from many sources, aggregates with outlier removal and weigh
 ## Comparison
 
 | | Traditional oracle | ZK oracle aggregator |
-|--|-------------------|----------------------|
+| --- | --- | --- |
 | Trust basis | Governance, votes | Math + multi-source consensus |
 | Dispute | Slow human process | `disputed` flag, no proof issued |
 | Audit | Opaque logs | Public proofs + source hashes |

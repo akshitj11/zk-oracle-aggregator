@@ -17,7 +17,7 @@ flowchart TB
 ```
 
 | | Traditional | This project |
-|--|-------------|--------------|
+| --- | --- | --- |
 | Trust | Governance | Cryptography + consensus |
 | Audit | Opaque | Proofs + hashed sources |
 
@@ -58,7 +58,7 @@ CI runs build, fmt, clippy, docs, nextest, typos, taplo, markdownlint, yamlfmt, 
 ## Binaries
 
 | Binary | Purpose |
-|--------|---------|
+| --- | --- |
 | `oracle-server` | REST API (`/health` today) |
 | `oracle-fetcher` | Concurrent source fetch CLI |
 | `oracle-aggregator` | Aggregation (M2) |

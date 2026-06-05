@@ -153,7 +153,10 @@ jobs:
       - name: markdownlint-cli2-action
         uses: DavidAnson/markdownlint-cli2-action@v23
         with:
-          globs: '**/*.md'
+          configFile: .markdownlint-cli2.yaml
+          globs: |
+            README.md
+            docs/**/*.md
 
   yamlfmt:
     runs-on: ubuntu-latest

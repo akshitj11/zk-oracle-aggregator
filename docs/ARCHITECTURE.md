@@ -15,7 +15,7 @@ flowchart TB
 ## Workspace layout
 
 | Component | Crate / binary | Status |
-|-----------|----------------|--------|
+| --- | --- | --- |
 | Core library | `oracle-core` | Active |
 | HTTP fetcher | `oracle-fetcher` | Active |
 | API server | `oracle-server` | Health only |
