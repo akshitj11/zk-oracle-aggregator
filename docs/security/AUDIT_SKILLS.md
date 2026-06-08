@@ -9,7 +9,7 @@
 
 ## Cursor install prompts
 
-```
+```text
 Install https://github.com/pashov/skills/
 Install skills in https://github.com/DarkNavySecurity/web3-skills/
 ```

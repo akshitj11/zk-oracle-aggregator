@@ -11,3 +11,4 @@ keys/
 x-ray/
 .sqlx/
 config/sources.toml
+docs/plans/
