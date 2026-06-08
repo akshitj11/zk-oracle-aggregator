@@ -21,7 +21,7 @@ flowchart TB
 | Trust | Governance | Cryptography + consensus |
 | Audit | Opaque | Proofs + hashed sources |
 
-Details: [docs/WHY.md](docs/WHY.md) · Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+Details: [docs/WHY.md](docs/WHY.md) · Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Security: [docs/security/invariants.md](docs/security/invariants.md) · [SECURITY.md](SECURITY.md)
 
 ## Quick start
 
@@ -53,7 +53,7 @@ cargo fmt --all
 cargo clippy --workspace --all-targets -- -Dwarnings
 ```
 
-CI runs build, fmt, clippy, docs, nextest, typos, taplo, markdownlint, yamlfmt, cargo-deny, and MSRV check on every push/PR.
+CI runs build, fmt, clippy, docs, nextest, typos, taplo, markdownlint (including `docs/security/`), yamlfmt, cargo-deny, cargo-audit, secrets grep, and MSRV check on every push/PR.
 
 ## Binaries
 

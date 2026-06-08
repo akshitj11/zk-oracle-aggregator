@@ -182,6 +182,24 @@ jobs:
   check-msrv:
     uses: ./.github/workflows/check_msrv.yaml
 
+  secrets-grep:
+    name: Secrets grep
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v6
+
+      - name: Fail on committed proving keys or secrets
+        run: |
+          set -euo pipefail
+          if git ls-files '*.pk' 'keys/pk.bin' 'keys/*.pk' 'vk.bin' 'proof.bin' 2>/dev/null | grep -q .; then
+            echo "Committed proving key or proof artifact detected"
+            git ls-files '*.pk' 'keys/' 'vk.bin' 'proof.bin' || true
+            exit 1
+          fi
+          echo "No committed pk/proof artifacts"
+
   cargo-miri:
     if: false # arkworks/zk not miri-ready; enable for fetcher-only tests later
     uses: ./.github/workflows/cargo_miri.yaml

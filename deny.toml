@@ -25,6 +25,11 @@ confidence-threshold = 0.8
 multiple-versions = "warn"
 wildcards = "warn"
 
+# Phase 2 (M3 ZK): consider denying duplicate ark-* versions, e.g.:
+# [[bans.deny]]
+# name = "ark-*"
+# multiple-versions = "deny"
+
 [sources]
 unknown-registry = "deny"
 unknown-git = "deny"
