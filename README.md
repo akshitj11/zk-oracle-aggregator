@@ -1,4 +1,4 @@
-# ZK Oracle Aggregator
+d# ZK Oracle Aggregator
 
 Manipulation-resistant oracle pipeline for prediction markets: **multi-source fetch**, honest aggregation, and **Groth16 proofs** (BN254) for verifiable resolution.
 
@@ -64,10 +64,6 @@ CI runs build, fmt, clippy, docs, nextest, typos, taplo, markdownlint (including
 | `oracle-aggregator` | Aggregation (M2) |
 | `oracle-prover` / `oracle-verifier` | ZK (M3) |
 | `oracle-submitter` | On-chain submit (M6) |
-
-## Git
-
-Commits and pushes happen only when requested. Use lowercase messages. Author: `akshit <akshitcasual1@gmail.com>`. No co-author trailers.
 
 ## License
 
