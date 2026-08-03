@@ -1,4 +1,4 @@
-d# ZK Oracle Aggregator
+# ZK Oracle Aggregator
 
 Manipulation-resistant oracle pipeline for prediction markets: **multi-source fetch**, honest aggregation, and **Groth16 proofs** (BN254) for verifiable resolution.
 
