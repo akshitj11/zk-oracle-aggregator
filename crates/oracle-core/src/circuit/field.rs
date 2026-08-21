@@ -1,5 +1,11 @@
 //! Field encoding helpers for circuit witnesses.
 
+#![allow(
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_truncation
+)]
+
 use ark_bn254::Fr;
 use ark_ff::{BigInteger, PrimeField};
 

@@ -1,5 +1,12 @@
 //! Build [`super::OracleCircuit`] witnesses from fetcher and aggregator output.
 
+#![allow(
+    clippy::cast_precision_loss,
+    clippy::cast_sign_loss,
+    clippy::cast_possible_truncation,
+    clippy::implicit_hasher
+)]
+
 use std::collections::HashSet;
 
 use ark_bn254::Fr;
