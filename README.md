@@ -2,7 +2,95 @@
 
 [![CI](https://github.com/akshitj11/zk-oracle-aggregator/actions/workflows/ci.yaml/badge.svg)](https://github.com/akshitj11/zk-oracle-aggregator/actions/workflows/ci.yaml)
 
-Prediction markets settle on oracle output. Token-vote oracles let one whale pick the winner. This repo fetches up to 16 independent feeds, aggregates with outlier removal and weighted median, proves the computation in Groth16 (BN254), archives proofs in Postgres, serves REST resolve, and settles on-chain through a mock Solidity verifier. M0–M7 are implemented. Mainnet still needs a real BN254 verifier, live RPC broadcast from `oracle-submitter`, and non-mock source URLs.
+Prediction markets settle on oracle output. Token-vote oracles let one whale pick the winner. This repo replaces that vote with multi-source consensus and a Groth16 proof on BN254. M0–M7 are implemented.
+
+## System overview
+
+Sixteen HTTP feeds, outlier removal at 0.70 peer agreement, weighted median consensus, Groth16 proof on BN254. Solid arrows are `POST /resolve` through `oracle-server`. Dashed arrows are the standalone CLI path for local prove/verify.
+
+```mermaid
+flowchart TB
+  subgraph config [Config]
+    SourcesTOML["sources.toml: up to 16 source URLs"]
+    EnvConfig["DATABASE_URL ORACLE_API_KEY Groth16 pk/vk"]
+  end
+
+  subgraph external [Untrusted]
+    ExtApis["External APIs: outcome confidence JSON"]
+    ApiClients["REST callers on /resolve"]
+  end
+
+  subgraph core [oracle-core library]
+    FetchMod["fetcher: 16 concurrent GETs 5s timeout BLAKE3 raw_hash"]
+    AggMod["aggregator: outlier 0.70 weighted median disputed lt 0.60"]
+    CircuitMod["circuit: 16-slot R1CS binary outcomes inclusion flags"]
+    ProverMod["prover: Groth16 BN254 witness from aggregate"]
+    VerifierMod["verifier: vk public inputs proof bytes only"]
+    StoreMod["OracleStore: sqlx oracle_proofs source_responses reputation"]
+    ChainMod["chain: public_inputs_u256 resolveMarket calldata"]
+  end
+
+  subgraph clis [CLI debug path]
+    FetchCli["oracle-fetcher"]
+    AggCli["oracle-aggregator"]
+    ProverCli["oracle-prover"]
+    VerifierCli["oracle-verifier"]
+  end
+
+  subgraph server [oracle-server REST]
+    Middleware["middleware: API key rate limit 1 MiB body"]
+    ResolveRoute["POST /resolve: fetch aggregate prove store"]
+    ReadRoutes["GET /proof /verify /reputation /health /metrics"]
+  end
+
+  subgraph db [PostgreSQL]
+    ProofsTbl["oracle_proofs: proof_bytes public_inputs market_id"]
+    ResponsesTbl["source_responses: raw_hash linked to proof_id"]
+    RepTbl["source_reputation: accuracy weights"]
+  end
+
+  subgraph chainLayer [On-chain M6]
+    Submitter["oracle-submitter: calldata or ETH_RPC_URL broadcast"]
+    OracleContract["PredictionMarketOracle.resolveMarket"]
+    MockVk["MockGroth16Verifier: dev XOR check only"]
+    ProdVk["BN254 Groth16 vk: mainnet ceremony match"]
+  end
+
+  SourcesTOML --> FetchMod
+  SourcesTOML -.-> FetchCli
+  EnvConfig --> ResolveRoute
+  EnvConfig --> StoreMod
+  ExtApis --> FetchMod
+  ApiClients --> Middleware
+  Middleware --> ResolveRoute
+  Middleware --> ReadRoutes
+  ResolveRoute --> FetchMod
+  FetchMod --> AggMod
+  AggMod -->|"disputed: 409"| ApiClients
+  CircuitMod --> ProverMod
+  AggMod --> ProverMod
+  ProverMod --> VerifierMod
+  ProverMod --> StoreMod
+  StoreMod --> ProofsTbl
+  StoreMod --> ResponsesTbl
+  StoreMod --> RepTbl
+  ReadRoutes --> ProofsTbl
+  ReadRoutes --> VerifierMod
+  ProverMod --> ChainMod
+  ChainMod --> Submitter
+  Submitter --> OracleContract
+  OracleContract --> MockVk
+  MockVk -.->|"mainnet: swap vk"| ProdVk
+  FetchCli -.-> AggCli
+  AggCli -.-> ProverCli
+  ProverCli -.-> VerifierCli
+  FetchCli -.-> FetchMod
+  AggCli -.-> AggMod
+  ProverCli -.-> ProverMod
+  VerifierCli -.-> VerifierMod
+```
+
+Disputed markets return 409 before proving. Nothing writes to Postgres. Verifiers only check vk, public inputs, and proof bytes. The operator is not in that trust set. `MockGroth16Verifier` is dev-only; mainnet needs a real BN254 Groth16 vk from the same ceremony as Rust pk/vk.
 
 ## Quick start
 
