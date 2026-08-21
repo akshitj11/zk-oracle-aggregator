@@ -1,6 +1,6 @@
 # Adversarial vectors
 
-Attack scenarios mapped to tests. **implemented** = covered today; **planned** = M3 ZK phase.
+Attack scenarios mapped to tests. **implemented** = covered in CI today; **planned** = future milestone.
 
 ## Fetcher
 
@@ -24,15 +24,19 @@ Attack scenarios mapped to tests. **implemented** = covered today; **planned** =
 | Unknown-only weights | `weighted_median` → `Unknown` | `security_adversarial::unknown_only_returns_unknown` | implemented |
 | Malformed stdin JSON | CLI exits non-zero, no panic | `security_adversarial` + manual CLI | implemented |
 
-## ZK / prover (planned)
+## ZK / prover
 
 | Vector | Expected behavior | Test | Status |
 | --- | --- | --- | --- |
-| Non-binary outcome witness | Constraints unsatisfied / verify fails | `zk::gadgets::boolean` | planned |
-| Wrong public `x_squared` | Verify fails | hello circuit test | planned |
-| Tampered proof bytes | Verify fails | `zk_adversarial.rs` | planned |
-| Witness ≠ aggregation | Prover errors or verify fails | `from_aggregation` consistency | planned |
-| Wrong Poseidon commitment | Verify fails | `gadgets::commitment` | planned |
+| Non-binary outcome witness | Circuit unsatisfied | `zk_invariants::z1_outcome_witnesses_are_binary` | implemented |
+| Excluded source zero weight | Outlier does not count in-circuit | `zk_invariants::z2_excluded_sources_do_not_count_toward_total` | implemented |
+| Public source_count mismatch | Verify fails | `prover_roundtrip::wrong_source_count_public_input_fails` | implemented |
+| Witness matches aggregate | Honest witness equals M2 output | `zk_invariants::z6_witness_matches_aggregate` | implemented |
+| Disputed market witness | `build_witness` errors | `zk_invariants::z6_rejects_disputed_witness` | implemented |
+| Tampered proof bytes | Verify fails | `prover_roundtrip::tampered_proof_bytes_fail_verify` | implemented |
+| Tampered public inputs | Verify fails | `prover_roundtrip::tampered_public_inputs_fail_verify` | implemented |
+| Groth16 round-trip | Valid proof verifies | `zk_invariants::z7_z8_groth16_verify_invariants` | implemented |
+| Body hash mismatch (audit) | Off-chain compare `raw_hash` vs BLAKE3 | M4 storage | planned |
 
 ## CI
 

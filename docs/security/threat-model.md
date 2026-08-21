@@ -1,6 +1,6 @@
 # Threat model
 
-Threat model for the Rust oracle pipeline (M0–M2 implemented, M3–M7 planned).
+Threat model for the Rust oracle pipeline (M0–M3 implemented, M4–M7 planned).
 
 ## System overview
 
