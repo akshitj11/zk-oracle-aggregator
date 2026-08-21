@@ -124,7 +124,21 @@ pub async fn fetch_all_sources(
     client: &Client,
     sources: &[(String, String)],
 ) -> Vec<SourceResponse> {
-    let futures = sources
+    fetch_all_sources_with_limit(client, sources, None).await
+}
+
+/// Fetch sources concurrently, optionally capping how many URLs are requested.
+pub async fn fetch_all_sources_with_limit(
+    client: &Client,
+    sources: &[(String, String)],
+    max_sources: Option<usize>,
+) -> Vec<SourceResponse> {
+    let capped = match max_sources {
+        Some(limit) => sources.iter().take(limit).collect::<Vec<_>>(),
+        None => sources.iter().collect::<Vec<_>>(),
+    };
+
+    let futures = capped
         .iter()
         .map(|(id, url)| fetch_source(client, url, id, 2));
 
@@ -146,6 +160,36 @@ mod tests {
         assert_eq!(resp.outcome, Outcome::Yes);
         assert!((resp.confidence - 0.95).abs() < f64::EPSILON);
         assert_eq!(resp.source_id, "ap-news");
+    }
+
+    #[tokio::test]
+    async fn fetch_all_sources_respects_max_limit() {
+        let server = MockServer::start().await;
+
+        for path_suffix in ["a", "b", "c"] {
+            Mock::given(method("GET"))
+                .and(path(format!("/{path_suffix}")))
+                .respond_with(ResponseTemplate::new(200).set_body_json(
+                    serde_json::json!({
+                        "outcome": "YES",
+                        "confidence": 0.9
+                    }),
+                ))
+                .mount(&server)
+                .await;
+        }
+
+        let client = Client::new();
+        let base = server.uri();
+        let sources = vec![
+            ("s1".to_owned(), format!("{base}/a")),
+            ("s2".to_owned(), format!("{base}/b")),
+            ("s3".to_owned(), format!("{base}/c")),
+        ];
+
+        let responses =
+            fetch_all_sources_with_limit(&client, &sources, Some(2)).await;
+        assert_eq!(responses.len(), 2);
     }
 
     #[test]

@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use anyhow::Context;
 use clap::Parser;
-use oracle_core::fetch_all_sources;
+use oracle_core::fetch_all_sources_with_limit;
 use reqwest::Client;
 use serde::Deserialize;
 use tracing_subscriber::EnvFilter;
@@ -16,6 +16,9 @@ struct Args {
     /// Path to sources TOML config.
     #[arg(short, long, default_value = "config/sources.example.toml")]
     config: PathBuf,
+    /// Maximum number of source URLs to fetch (default: all configured).
+    #[arg(long)]
+    max_sources: Option<usize>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -47,7 +50,8 @@ async fn main() -> anyhow::Result<()> {
         file.sources.into_iter().map(|s| (s.id, s.url)).collect();
 
     let client = Client::new();
-    let responses = fetch_all_sources(&client, &pairs).await;
+    let responses =
+        fetch_all_sources_with_limit(&client, &pairs, args.max_sources).await;
 
     let json = serde_json::to_string_pretty(&responses)?;
     println!("{json}");
