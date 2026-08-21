@@ -185,6 +185,19 @@ mod tests {
     }
 
     #[test]
+    fn included_source_ids_drops_minority() {
+        let responses = vec![
+            response("a", Outcome::Yes, 0.9),
+            response("b", Outcome::Yes, 0.9),
+            response("c", Outcome::Yes, 0.9),
+            response("d", Outcome::No, 0.9),
+        ];
+        let ids = included_source_ids(&responses);
+        assert_eq!(ids.len(), 3);
+        assert!(!ids.contains("d"));
+    }
+
+    #[test]
     fn disputed_returns_error() {
         assert!(matches!(
             build_witness(&[]),
