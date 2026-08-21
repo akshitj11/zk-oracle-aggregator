@@ -241,6 +241,26 @@ jobs:
       - name: Run prove-verify smoke
         run: ./scripts/prove-verify-smoke.sh
 
+  forge-test:
+    name: Forge test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v7
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Install forge-std
+        run: forge install foundry-rs/forge-std --no-commit
+
+      - name: Run forge test
+        run: forge test
+
   cargo-miri:
     if: false # arkworks/zk not miri-ready; enable for fetcher-only tests later
     uses: ./.github/workflows/cargo_miri.yaml

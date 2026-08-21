@@ -97,4 +97,12 @@ fi
 echo "== prove-verify smoke =="
 "${ROOT}/scripts/prove-verify-smoke.sh"
 
+echo "== forge test =="
+if command -v forge >/dev/null 2>&1; then
+  (cd contracts && forge install foundry-rs/forge-std --no-commit 2>/dev/null || true)
+  (cd contracts && forge test)
+else
+  echo "skip: forge not installed"
+fi
+
 echo "ci-local: OK"
