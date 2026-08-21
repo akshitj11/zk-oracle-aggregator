@@ -1,15 +1,17 @@
 //! Postgres-backed proof archive and source reputation.
 
 use chrono::{DateTime, Utc};
+use rust_decimal::Decimal;
 use sqlx::postgres::PgPoolOptions;
 use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::aggregator::AggregationResult;
+use crate::fetcher::SourceResponse;
 use crate::prover::{OracleProof, PublicInputs};
 
 use super::error::StoreError;
-use super::types::StoredProof;
+use super::types::{outcome_to_db, ReputationRecord, StoredProof};
 
 /// Parameterized sqlx access to oracle proofs and reputation tables.
 #[derive(Debug, Clone)]
@@ -115,5 +117,38 @@ impl OracleStore {
             onchain_tx_hash: row.onchain_tx_hash,
             created_at: row.created_at.unwrap_or_else(Utc::now),
         }))
+    }
+
+    /// Batch insert source responses linked to a stored proof.
+    pub async fn save_source_responses(
+        &self,
+        proof_id: Uuid,
+        responses: &[SourceResponse],
+    ) -> Result<(), StoreError> {
+        for response in responses {
+            let outcome = outcome_to_db(response.outcome);
+            let confidence = Decimal::from_f64_retain(response.confidence.clamp(0.0, 1.0))
+                .unwrap_or_default();
+            let fetched_at = DateTime::from_timestamp(response.fetched_at as i64, 0)
+                .unwrap_or_else(Utc::now);
+
+            sqlx::query!(
+                r#"
+                INSERT INTO source_responses (
+                    proof_id, source_id, outcome, confidence, raw_hash, fetched_at
+                )
+                VALUES ($1, $2, $3, $4, $5, $6)
+                "#,
+                proof_id,
+                response.source_id,
+                outcome,
+                confidence,
+                response.raw_hash.as_slice(),
+                fetched_at
+            )
+            .execute(&self.pool)
+            .await?;
+        }
+        Ok(())
     }
 }
