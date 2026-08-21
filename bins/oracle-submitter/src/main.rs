@@ -21,10 +21,10 @@ struct Args {
     #[arg(long)]
     outcome: bool,
     /// RPC URL (prints calldata only when omitted).
-    #[arg(long, env = "ETH_RPC_URL")]
+    #[arg(long)]
     rpc_url: Option<String>,
     /// Oracle contract address.
-    #[arg(long, env = "ORACLE_CONTRACT")]
+    #[arg(long)]
     contract: Option<String>,
 }
 
@@ -36,6 +36,12 @@ struct ProofFile {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
+    let rpc_url = args
+        .rpc_url
+        .or_else(|| std::env::var("ETH_RPC_URL").ok());
+    let contract = args
+        .contract
+        .or_else(|| std::env::var("ORACLE_CONTRACT").ok());
     let raw = std::fs::read_to_string(&args.proof)
         .with_context(|| format!("read {}", args.proof.display()))?;
     let file: ProofFile = serde_json::from_str(&raw).context("parse proof JSON")?;
@@ -61,12 +67,16 @@ async fn main() -> Result<()> {
         proof.proof_c[0],
     );
 
-    if args.rpc_url.is_none() || args.contract.is_none() {
+    if rpc_url.is_none() || contract.is_none() {
         println!("{calldata}");
         return Ok(());
     }
 
-    println!("submit to {} via {}", args.contract.unwrap(), args.rpc_url.unwrap());
+    println!(
+        "submit to {} via {}",
+        contract.unwrap(),
+        rpc_url.unwrap()
+    );
     println!("{calldata}");
     Ok(())
 }
