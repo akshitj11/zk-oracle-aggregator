@@ -30,18 +30,18 @@ Statements that must hold for the oracle pipeline to be trustworthy. Status: **i
 | A4 | `weighted_median` uses only Yes/No weights; Unknown sources contribute zero to yes/no totals | implemented |
 | A5 | `weighted_median` returns `Unknown` when total Yes+No weight is zero | implemented |
 
-## ZK layer (planned — Phase 2 / M3)
+## ZK layer (M3)
 
 | ID | Invariant | Status |
 | --- | --- | --- |
-| Z1 | Every constrained outcome variable in-circuit is binary (0 or 1) | planned |
-| Z2 | Excluded sources (`included = 0`) contribute zero effective weight in-circuit | planned |
-| Z3 | Public `source_count` equals sum of inclusion flags | planned |
-| Z4 | Public `final_outcome` matches weighted majority of included sources | planned |
-| Z5 | Each public commitment equals Poseidon(outcome, confidence, raw_hash) for that source | planned |
-| Z6 | Witness builder output matches M2 `aggregate()` for honest runs; mismatch is an error | planned |
-| Z7 | Groth16 verify succeeds only with correct vk and canonical public input order | planned |
-| Z8 | Tampered proof bytes or public inputs cause verify to fail | planned |
+| Z1 | Every constrained outcome variable in-circuit is binary (0 or 1) | implemented |
+| Z2 | Excluded sources (`included = 0`) contribute zero effective weight in-circuit | implemented |
+| Z3 | Public `source_count` equals sum of inclusion flags | implemented |
+| Z4 | Public `final_outcome` matches weighted majority of included sources | implemented |
+| Z5 | Agreement hash is BLAKE3 over included sources' `raw_hash` values (off-circuit commitment) | implemented |
+| Z6 | Witness builder output matches M2 `aggregate()` for honest runs; mismatch is an error | implemented |
+| Z7 | Groth16 verify succeeds only with correct vk and canonical public input order | implemented |
+| Z8 | Tampered proof bytes or public inputs cause verify to fail | implemented |
 
 ## Entry points (audit scope)
 
