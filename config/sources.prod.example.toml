@@ -1,0 +1,50 @@
+# Example production source slots (10+ independent feeds).
+# Replace URLs with real endpoints before mainnet deployment.
+
+[[sources]]
+id = "reuters"
+url = "https://example.com/reuters/outcome"
+
+[[sources]]
+id = "ap"
+url = "https://example.com/ap/outcome"
+
+[[sources]]
+id = "bbc"
+url = "https://example.com/bbc/outcome"
+
+[[sources]]
+id = "afp"
+url = "https://example.com/afp/outcome"
+
+[[sources]]
+id = "bloomberg"
+url = "https://example.com/bloomberg/outcome"
+
+[[sources]]
+id = "cnbc"
+url = "https://example.com/cnbc/outcome"
+
+[[sources]]
+id = "ft"
+url = "https://example.com/ft/outcome"
+
+[[sources]]
+id = "wsj"
+url = "https://example.com/wsj/outcome"
+
+[[sources]]
+id = "guardian"
+url = "https://example.com/guardian/outcome"
+
+[[sources]]
+id = "nyt"
+url = "https://example.com/nyt/outcome"
+
+[[sources]]
+id = "polymarket-ref"
+url = "https://example.com/polymarket/ref"
+
+[[sources]]
+id = "chainlink-ref"
+url = "https://example.com/chainlink/ref"
