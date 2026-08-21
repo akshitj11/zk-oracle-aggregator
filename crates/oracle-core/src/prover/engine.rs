@@ -26,6 +26,8 @@ pub enum ProverError {
     Serialize(String),
     #[error("proof deserialization failed: {0}")]
     Deserialize(String),
+    #[error("witness error: {0}")]
+    Witness(String),
 }
 
 /// Loaded verifying key for proof checks.
@@ -75,6 +77,30 @@ impl OracleProver {
         OracleVerifier {
             verifying_key: self.verifying_key.clone(),
         }
+    }
+
+    /// Serialize the proving key for reuse across prover runs.
+    pub fn proving_key_bytes(&self) -> Result<Vec<u8>, ProverError> {
+        let mut bytes = Vec::new();
+        self.proving_key
+            .serialize_uncompressed(&mut bytes)
+            .map_err(|e| ProverError::Serialize(e.to_string()))?;
+        Ok(bytes)
+    }
+
+    /// Load proving and verifying keys from uncompressed bytes.
+    pub fn from_key_bytes(
+        proving_key: &[u8],
+        verifying_key: &[u8],
+    ) -> Result<Self, ProverError> {
+        let proving_key = ProvingKey::deserialize_uncompressed(proving_key)
+            .map_err(|e| ProverError::Deserialize(e.to_string()))?;
+        let verifying_key = VerifyingKey::deserialize_uncompressed(verifying_key)
+            .map_err(|e| ProverError::Deserialize(e.to_string()))?;
+        Ok(Self {
+            proving_key,
+            verifying_key,
+        })
     }
 
     /// Serialize the verifying key for distribution to verifiers.
