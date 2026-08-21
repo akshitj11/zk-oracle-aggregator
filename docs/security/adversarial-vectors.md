@@ -41,3 +41,11 @@ Attack scenarios mapped to tests. **implemented** = covered in CI today; **plann
 ## CI
 
 All rows marked **implemented** run in `cargo test --workspace` on every PR.
+
+## API (M5)
+
+| Vector | Expected behavior | Test | Status |
+| --- | --- | --- | --- |
+| Missing API key | 401 on `/resolve` | `api_integration::auth_rejects_missing_key` | implemented |
+| Disputed market | 409, no proof stored | `api_integration::resolve_disputed_returns_409` | implemented |
+| Rate limit exceeded | 429 | `api_integration::rate_limit_returns_429` | implemented |
