@@ -61,13 +61,13 @@ flowchart TB
 | HTTP response injection | Wrong outcome in JSON | Parse validation; BLAKE3 audit trail |
 | Outlier minority source | Skew if threshold wrong | `remove_outliers` at 0.70; disputed flag |
 | Empty / single source | Weak consensus | `disputed` when agreement &lt; 0.60 |
-| Stdin / body size | Memory DoS | 1 MiB stdin cap; API body limit (M5) |
+| Stdin / body size | Memory DoS | 1 MiB stdin cap; API body limit on `oracle-server` |
 | Non-binary witness (M3) | Fake majority | Z1 boolean constraints |
 | Witness substitution (M3) | Hide source data | BLAKE3 agreement hash over included `raw_hash` (Z5); Z6 parity with `aggregate()` |
 | Tampered proof (M3) | Accept invalid proof | Z7/Z8 Groth16 verify |
 | Leaked proving key | Forge arbitrary proofs | G4 gitignore + CI secrets grep |
 | SQL injection (M4) | Corrupt archive | sqlx parameterized queries in `OracleStore` |
-| Unauthenticated `/resolve` (M5) | Spam resolutions | API key middleware |
+| Unauthenticated `/resolve` | Spam resolutions | `ORACLE_API_KEY` middleware |
 | Public input mismatch (M6) | On-chain/off-chain drift | Single canonical `public_inputs()` encoder |
 | Dependency compromise | Supply chain | `cargo audit`, `cargo deny` in CI |
 
@@ -76,7 +76,7 @@ flowchart TB
 | Integration | Note |
 | --- | --- |
 | PostgreSQL archive (M4) | Proofs and source hashes; access control on `DATABASE_URL` |
-| REST `/resolve` (M5) | Auth + rate limit; 409 on `disputed` |
+| REST `/resolve` | Auth + rate limit; 409 on `disputed` |
 | Solidity verifier (M6) | Public input order must match Rust verifier exactly |
 
 See [adversarial-vectors.md](adversarial-vectors.md) for test mapping and [audit-findings.md](audit-findings.md) for the Phase 1 baseline review.
