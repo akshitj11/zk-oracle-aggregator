@@ -14,3 +14,4 @@ x-ray/
 config/sources.toml
 docs/plans/
 .cursor/
+.cargo-home/
