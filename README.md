@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/akshitj11/zk-oracle-aggregator/actions/workflows/ci.yaml/badge.svg)](https://github.com/akshitj11/zk-oracle-aggregator/actions/workflows/ci.yaml)
 
-Prediction markets settle on oracle output. When that output comes from a token vote, one whale can pick the winner. This repo fetches N independent feeds, aggregates with outlier removal and a weighted median, and attaches a Groth16 proof (BN254) so verification does not depend on trusting the operator. Fetch, aggregate, and prove (M0–M3) run in `oracle-core` and the prover CLIs. Postgres archive, REST resolve, and on-chain verify are in progress (M4–M6).
+Prediction markets settle on oracle output. When that output comes from a token vote, one whale can pick the winner. This repo fetches N independent feeds, aggregates with outlier removal and a weighted median, and attaches a Groth16 proof (BN254) so verification does not depend on trusting the operator. M0–M5 cover fetch, aggregate, prove, Postgres archive, and REST resolve. On-chain verify (M6) and production hardening (M7) follow.
 
 ## Quick start
 
@@ -25,7 +25,7 @@ psql "$DATABASE_URL" -f migrations/001_init.sql
 
 ## Binaries
 
-`oracle-fetcher` hits configured URLs concurrently (max 16 sources). `oracle-aggregator` reads `SourceResponse[]` JSON from stdin. `oracle-prover` reads the same JSON, builds a witness from `aggregate()`, and prints a Groth16 proof with public inputs. `oracle-verifier` checks proof JSON on stdin. `oracle-server` exposes `/health` today. `oracle-submitter` is a stub until M6.
+`oracle-fetcher` hits configured URLs concurrently (max 16 sources). `oracle-aggregator` reads `SourceResponse[]` JSON from stdin. `oracle-prover` reads the same JSON, builds a witness from `aggregate()`, and prints a Groth16 proof with public inputs. `oracle-verifier` checks proof JSON on stdin. `oracle-server` exposes `GET /health`, `GET /proof/:market_id`, `GET /reputation/:source_id`, `GET /verify/:market_id`, and `POST /resolve`. Set `DATABASE_URL`, optional `ORACLE_API_KEY`, and `SOURCES_CONFIG`. `oracle-submitter` is a stub until M6.
 
 Prove and verify locally:
 
@@ -37,6 +37,22 @@ cargo run -p oracle-verifier -- --verifying-key /tmp/vk.bin < /tmp/proof.json
 ```
 
 Further reading: [docs/WHY.md](docs/WHY.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/security/invariants.md](docs/security/invariants.md).
+
+## API
+
+Start Postgres, apply migrations, then run the server:
+
+```bash
+export DATABASE_URL=postgres://oracle:oracle@localhost:5432/oracle
+export ORACLE_API_KEY=dev-key
+cargo run -p oracle-server
+curl http://127.0.0.1:8080/health
+curl -H "X-API-Key: dev-key" -X POST http://127.0.0.1:8080/resolve \
+  -H 'Content-Type: application/json' \
+  -d '{"market_id":"0102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20"}'
+```
+
+`POST /resolve` returns `409` when aggregation is disputed. Proofs persist in Postgres and are readable via `GET /proof/:market_id` (hex-encoded market id).
 
 ## License
 
