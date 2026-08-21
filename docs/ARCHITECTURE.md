@@ -18,7 +18,7 @@ flowchart TB
 | --- | --- | --- |
 | Core library | `oracle-core` | Active |
 | HTTP fetcher | `oracle-fetcher` | Active |
-| API server | `oracle-server` | Health only |
+| API server | `oracle-server` | Active (M5) |
 | Aggregator CLI | `oracle-aggregator` | Active |
 | Prover / verifier | `oracle-prover`, `oracle-verifier` | Active (M3) |
 | Chain submitter | `oracle-submitter` | M6 |
@@ -42,6 +42,10 @@ Sources load from TOML (`id`, `url`). `fetch_all_sources_with_limit` runs concur
 ## Storage (implemented)
 
 `OracleStore` in `oracle-core::storage` uses sqlx against Postgres. `save_proof` and `get_proof` round-trip `oracle_proofs` by `market_id` BYTEA. `save_source_responses` links fetch rows to `proof_id`. `update_reputation` and `get_reputation` maintain `source_reputation` accuracy weights. Schema lives in `migrations/001_init.sql` with indexes in `migrations/002_indexes.sql`. CI and local tests require `DATABASE_URL`; compile-time query checks use the committed `.sqlx/` offline cache.
+
+## REST API (implemented)
+
+`oracle-server` loads `AppState` with `OracleStore`, Groth16 keys, and source URLs from TOML. `POST /resolve` runs fetch, `aggregate()`, rejects disputed markets with `409`, then `prove_responses()` and storage. `GET /proof/:market_id` returns stored proofs. `GET /verify/:market_id` re-runs Groth16 verify. Optional `ORACLE_API_KEY` gates mutating routes; rate limiting and 1 MiB body caps apply via middleware.
 
 ## Local Postgres
 
