@@ -12,6 +12,7 @@ use crate::state::AppState;
 pub fn build_router(state: AppState) -> Router {
     Router::new()
         .route("/health", get(api::health))
+        .route("/metrics", get(api::metrics))
         .route("/proof/{market_id}", get(api::get_proof))
         .route("/reputation/{source_id}", get(api::get_reputation))
         .route("/verify/{market_id}", get(api::verify_stored_proof))

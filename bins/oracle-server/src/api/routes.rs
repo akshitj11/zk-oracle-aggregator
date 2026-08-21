@@ -16,6 +16,10 @@ pub async fn health() -> Json<HealthResponse> {
     Json(HealthResponse { status: "ok" })
 }
 
+pub async fn metrics() -> String {
+    "oracle_resolve_total 0\noracle_server_up 1\n".to_string()
+}
+
 pub async fn get_proof(
     State(state): State<AppState>,
     Path(market_id): Path<String>,
@@ -73,6 +77,9 @@ pub async fn resolve_market(
     State(state): State<AppState>,
     Json(body): Json<ResolveRequest>,
 ) -> Result<Json<ResolveResponse>, ApiError> {
+    let span = tracing::info_span!("resolve_market", market_id = %body.market_id);
+    let _guard = span.enter();
+
     let market_bytes = decode_market_id(&body.market_id)?;
 
     let responses = fetch_all_sources_with_limit(
