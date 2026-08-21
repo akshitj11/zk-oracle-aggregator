@@ -12,6 +12,9 @@ keys/
 .vscode/
 x-ray/
 config/sources.toml
+contracts/out/
+contracts/cache/
+contracts/lib/
 docs/plans/
 .cursor/
 .cargo-home/
