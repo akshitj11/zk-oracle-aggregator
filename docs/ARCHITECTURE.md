@@ -39,9 +39,9 @@ Sources load from TOML (`id`, `url`). `fetch_all_sources_with_limit` runs concur
 
 `Outcome` is YES, NO, or UNKNOWN. `SourceResponse` carries `source_id`, `outcome`, `confidence`, `fetched_at`, and `raw_hash`.
 
-## Storage (M4)
+## Storage (implemented)
 
-Schema in `migrations/001_init.sql`: `oracle_proofs`, `source_responses`, `source_reputation`.
+`OracleStore` in `oracle-core::storage` uses sqlx against Postgres. `save_proof` and `get_proof` round-trip `oracle_proofs` by `market_id` BYTEA. `save_source_responses` links fetch rows to `proof_id`. `update_reputation` and `get_reputation` maintain `source_reputation` accuracy weights. Schema lives in `migrations/001_init.sql` with indexes in `migrations/002_indexes.sql`. CI and local tests require `DATABASE_URL`; compile-time query checks use the committed `.sqlx/` offline cache.
 
 ## Local Postgres
 
@@ -52,4 +52,4 @@ export DATABASE_URL=postgres://oracle:oracle@localhost:5432/oracle
 
 ## Delivery
 
-Remaining work ships as 100 atomic commits on `main` (~8–12 PRs, no squash). M3 (Groth16 prove path) is complete on branch `m3-zk-circuit`; M4 storage follows. Run `./scripts/ci-local.sh` before each commit.
+Remaining work ships as atomic commits on `main`. M4 storage is landed; M5 REST resolve and M6 on-chain verify follow. Run `./scripts/ci-local.sh` before each commit.
