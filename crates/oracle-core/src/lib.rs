@@ -3,6 +3,7 @@
 #![cfg_attr(not(test), warn(clippy::unwrap_used, clippy::expect_used))]
 
 pub mod aggregator;
+pub mod chain;
 pub mod circuit;
 pub mod fetcher;
 pub mod prover;
