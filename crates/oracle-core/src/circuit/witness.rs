@@ -88,6 +88,14 @@ pub fn build_witness(
     Ok((circuit, result))
 }
 
+/// Source ids that survive outlier removal at the default threshold.
+pub fn included_source_ids(responses: &[SourceResponse]) -> HashSet<String> {
+    remove_outliers(responses, 0.70)
+        .into_iter()
+        .map(|r| r.source_id)
+        .collect()
+}
+
 /// Blake3 hash over included source `raw_hash` values (Z5 commitment).
 pub fn agreement_hash(
     responses: &[SourceResponse],
