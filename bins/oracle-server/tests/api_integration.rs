@@ -9,8 +9,13 @@ use oracle_server::build_router;
 use oracle_server::state::AppState;
 use reqwest::Client;
 use tower::ServiceExt;
+use uuid::Uuid;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
+
+fn unique_market_hex() -> String {
+    hex::encode(Uuid::new_v4().as_bytes())
+}
 
 async fn test_state(
     api_key: Option<String>,
@@ -89,7 +94,7 @@ async fn resolve_full_pipeline() {
     let state = test_state(None, sources).await;
     let app = build_router(state);
 
-    let body = serde_json::json!({ "market_id": "aa".repeat(32) });
+    let body = serde_json::json!({ "market_id": unique_market_hex() });
     let response = app
         .oneshot(
             Request::builder()
@@ -111,7 +116,7 @@ async fn resolve_disputed_returns_409() {
     let state = test_state(None, sources).await;
     let app = build_router(state);
 
-    let body = serde_json::json!({ "market_id": "bb".repeat(32) });
+    let body = serde_json::json!({ "market_id": unique_market_hex() });
     let response = app
         .oneshot(
             Request::builder()
@@ -133,7 +138,7 @@ async fn auth_rejects_missing_key() {
     let state = test_state(Some("secret-key".to_string()), sources).await;
     let app = build_router(state);
 
-    let body = serde_json::json!({ "market_id": "cc".repeat(32) });
+    let body = serde_json::json!({ "market_id": unique_market_hex() });
     let response = app
         .oneshot(
             Request::builder()
@@ -153,7 +158,7 @@ async fn auth_rejects_missing_key() {
 async fn verify_stored_proof_after_resolve() {
     let (_mock, sources) = mock_consensus_sources().await;
     let state = test_state(None, sources).await;
-    let market_hex = "dd".repeat(32);
+    let market_hex = unique_market_hex();
 
     let app = build_router(state.clone());
     let body = serde_json::json!({ "market_id": market_hex });
@@ -193,7 +198,7 @@ async fn rate_limit_returns_429() {
     let state = test_state(None, sources).await;
     let app = build_router(state);
 
-    let body = serde_json::json!({ "market_id": "ee".repeat(32) });
+    let body = serde_json::json!({ "market_id": unique_market_hex() });
     let mut saw_429 = false;
     for _ in 0..15 {
         let response = app
