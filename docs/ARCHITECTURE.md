@@ -1,6 +1,6 @@
 # Architecture
 
-## System overview
+The pipeline is fetch, aggregate, prove, store, serve, settle. M0–M2 implement fetch and aggregate in `oracle-core`. M3 adds Groth16 over the aggregation. M4 persists proofs in Postgres. M5 exposes REST resolve. M6 verifies on Ethereum.
 
 ```mermaid
 flowchart TB
@@ -12,7 +12,7 @@ flowchart TB
   Proof --> API[REST API]
 ```
 
-## Workspace layout
+## Workspace
 
 | Component | Crate / binary | Status |
 | --- | --- | --- |
@@ -20,37 +20,32 @@ flowchart TB
 | HTTP fetcher | `oracle-fetcher` | Active |
 | API server | `oracle-server` | Health only |
 | Aggregator CLI | `oracle-aggregator` | Active |
-| Prover / verifier | `oracle-prover`, `oracle-verifier` | Planned (M3) |
-| Chain submitter | `oracle-submitter` | Planned (M6) |
+| Prover / verifier | `oracle-prover`, `oracle-verifier` | M3 |
+| Chain submitter | `oracle-submitter` | M6 |
 
-## Aggregation pipeline (implemented)
+## Aggregation (implemented)
 
-1. Input: `Vec<SourceResponse>` (JSON on stdin for CLI).
-2. `remove_outliers` at threshold `0.70`.
-3. If agreement ratio &lt; `0.60`, mark `disputed`.
-4. `weighted_median` on remaining sources (confidence as weight).
-5. Output: `AggregationResult` with `rust_decimal` fields for reproducibility.
+Input is `Vec<SourceResponse>` (stdin JSON in the CLI). `remove_outliers` drops sources below 30% peer agreement (threshold 0.70). If fewer than 60% of inputs survive, `disputed` is true. Otherwise `weighted_median` compares total Yes vs No confidence weight. Output uses `rust_decimal` so the same bytes reproduce on every machine.
 
-## Fetch pipeline (implemented)
+## Fetch (implemented)
 
-1. Load source list from TOML config (`id`, `url`).
-2. `fetch_all_sources` runs concurrent HTTP GETs with timeout and retries.
-3. Each body is hashed with BLAKE3; JSON is parsed to `SourceResponse`.
-4. Failed sources are omitted (no panic on partial failure).
+Sources load from TOML (`id`, `url`). `fetch_all_sources_with_limit` runs concurrent GETs with 5s timeout and two retries, caps at `MAX_SOURCES` (16), hashes each body with BLAKE3, parses `{outcome, confidence}` JSON. Failed HTTP or parse drops that source without panicking.
 
-## Data types
+## Types
 
-- `Outcome`: `YES` | `NO` | `UNKNOWN`
-- `SourceResponse`: `source_id`, `outcome`, `confidence`, `fetched_at`, `raw_hash`
+`Outcome` is YES, NO, or UNKNOWN. `SourceResponse` carries `source_id`, `outcome`, `confidence`, `fetched_at`, and `raw_hash`.
 
-## Storage (planned M4)
+## Storage (M4)
 
-PostgreSQL schema in `migrations/001_init.sql`: `oracle_proofs`, `source_responses`, `source_reputation`.
+Schema in `migrations/001_init.sql`: `oracle_proofs`, `source_responses`, `source_reputation`.
 
-## Local services
+## Local Postgres
 
 ```bash
-docker compose up -d   # Postgres on localhost:5432
+docker compose up -d
+export DATABASE_URL=postgres://oracle:oracle@localhost:5432/oracle
 ```
 
-`DATABASE_URL=postgres://oracle:oracle@localhost:5432/oracle`
+## Delivery
+
+Remaining work ships as 100 atomic commits on `main` (~8–12 PRs, no squash). Run `./scripts/ci-local.sh` before each commit.

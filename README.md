@@ -1,46 +1,19 @@
-d# ZK Oracle Aggregator
-
-Manipulation-resistant oracle pipeline for prediction markets: **multi-source fetch**, honest aggregation, and **Groth16 proofs** (BN254) for verifiable resolution.
+# ZK Oracle Aggregator
 
 [![CI](https://github.com/akshitj11/zk-oracle-aggregator/actions/workflows/ci.yaml/badge.svg)](https://github.com/akshitj11/zk-oracle-aggregator/actions/workflows/ci.yaml)
 
-## Before vs after
-
-```mermaid
-flowchart TB
-  subgraph before [Traditional oracle]
-    M1[Market] --> V1[Vote / committee] --> C1[Contract trusts result]
-  end
-  subgraph after [This project]
-    M2[Market] --> S2[Many sources] --> A2[Aggregate] --> P2[ZK proof] --> V2[Verify] --> C2[Settle]
-  end
-```
-
-| | Traditional | This project |
-| --- | --- | --- |
-| Trust | Governance | Cryptography + consensus |
-| Audit | Opaque | Proofs + hashed sources |
-
-Details: [docs/WHY.md](docs/WHY.md) · Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Security: [docs/security/invariants.md](docs/security/invariants.md) · [SECURITY.md](SECURITY.md)
+Prediction markets settle on oracle output. When that output comes from a token vote, one whale can pick the winner. This repo fetches N independent feeds, aggregates with outlier removal and a weighted median, and will attach a Groth16 proof (BN254) so verification does not depend on trusting the operator. Fetch and aggregate (M0–M2) run today; proof generation, Postgres archive, REST resolve, and on-chain verify are in progress.
 
 ## Quick start
 
-**Requirements:** Rust 1.88+, Docker (for Postgres).
+Rust 1.88+ and Docker for Postgres. Run `./scripts/ci-local.sh` before every commit; it mirrors GitHub CI.
 
 ```bash
-# Build and test
 cargo build --workspace
 cargo test --workspace
-cargo nextest run --workspace   # if cargo-nextest is installed
-
-# Health API
 cargo run -p oracle-server
 curl http://127.0.0.1:8080/health
-
-# Fetch sources (point config at running mocks or APIs)
-cargo run -p oracle-fetcher -- --config config/sources.example.toml
-
-# Database (for milestone 4+)
+cargo run -p oracle-fetcher -- --config config/sources.integration.toml
 docker compose up -d
 export DATABASE_URL=postgres://oracle:oracle@localhost:5432/oracle
 psql "$DATABASE_URL" -f migrations/001_init.sql
@@ -48,23 +21,14 @@ psql "$DATABASE_URL" -f migrations/001_init.sql
 
 ## Development
 
-```bash
-cargo fmt --all
-cargo clippy --workspace --all-targets -- -Dwarnings
-```
-
-CI runs build, fmt, clippy, docs, nextest, typos, taplo, markdownlint (including `docs/security/`), yamlfmt, cargo-deny, cargo-audit, secrets grep, and MSRV check on every push/PR.
+`cargo fmt --all`, `cargo clippy --workspace --all-targets -- -Dwarnings`, and `./scripts/ci-local.sh` must pass locally before push. GitHub runs the same checks on every PR to `main`.
 
 ## Binaries
 
-| Binary | Purpose |
-| --- | --- |
-| `oracle-server` | REST API (`/health` today) |
-| `oracle-fetcher` | Concurrent source fetch CLI |
-| `oracle-aggregator` | Aggregation (M2) |
-| `oracle-prover` / `oracle-verifier` | ZK (M3) |
-| `oracle-submitter` | On-chain submit (M6) |
+`oracle-fetcher` hits configured URLs concurrently (max 16 sources). `oracle-aggregator` reads `SourceResponse[]` JSON from stdin. `oracle-server` exposes `/health` today. `oracle-prover`, `oracle-verifier`, and `oracle-submitter` are stubs until M3 and M6.
+
+Further reading: [docs/WHY.md](docs/WHY.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/security/invariants.md](docs/security/invariants.md).
 
 ## License
 
-MIT — see [LICENSE-MIT](LICENSE-MIT).
+MIT. See [LICENSE-MIT](LICENSE-MIT).
