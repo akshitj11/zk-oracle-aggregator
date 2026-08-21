@@ -5,6 +5,7 @@
 pub mod aggregator;
 pub mod circuit;
 pub mod fetcher;
+pub mod prover;
 
 /// Maximum source slots in the ZK circuit and fetch pipeline.
 pub const MAX_SOURCES: usize = 16;
@@ -17,3 +18,4 @@ pub use fetcher::{
     fetch_all_sources, fetch_all_sources_with_limit, fetch_source,
     parse_response, Outcome, ParseError, SourceResponse,
 };
+pub use prover::{OracleProof, PublicInputs};
