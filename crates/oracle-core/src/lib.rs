@@ -5,6 +5,9 @@
 pub mod aggregator;
 pub mod fetcher;
 
+/// Maximum source slots in the ZK circuit and fetch pipeline.
+pub const MAX_SOURCES: usize = 16;
+
 pub use aggregator::{
     aggregate, remove_outliers, weighted_median, AggregationResult,
 };

@@ -3,6 +3,7 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use futures::future::join_all;
+use crate::MAX_SOURCES;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -133,10 +134,11 @@ pub async fn fetch_all_sources_with_limit(
     sources: &[(String, String)],
     max_sources: Option<usize>,
 ) -> Vec<SourceResponse> {
-    let capped = match max_sources {
-        Some(limit) => sources.iter().take(limit).collect::<Vec<_>>(),
-        None => sources.iter().collect::<Vec<_>>(),
-    };
+    let effective_limit = max_sources
+        .map(|limit| limit.min(MAX_SOURCES))
+        .unwrap_or(MAX_SOURCES);
+
+    let capped = sources.iter().take(effective_limit).collect::<Vec<_>>();
 
     let futures = capped
         .iter()
