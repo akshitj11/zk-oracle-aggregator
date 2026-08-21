@@ -1,5 +1,10 @@
 [files]
-extend-exclude = ["docs/diagrams/*", "target/**", "Cargo.lock"]
+extend-exclude = [
+  "docs/diagrams/*",
+  "target/**",
+  "Cargo.lock",
+  "attribution/dependencies.toml",
+]
 
 [default.extend-words]
 Groth16 = "Groth16"
@@ -18,3 +23,4 @@ r1cs = "r1cs"
 R1CS = "R1CS"
 snark = "snark"
 SNARK = "SNARK"
+writeable = "writeable"

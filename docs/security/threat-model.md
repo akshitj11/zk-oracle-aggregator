@@ -1,6 +1,6 @@
 # Threat model
 
-Adapted from [pashov/skills x-ray](https://github.com/pashov/skills/tree/main/x-ray) for this Rust oracle pipeline (M0–M2 implemented, M3 planned).
+Threat model for the Rust oracle pipeline (M0–M2 implemented, M3–M7 planned).
 
 ## System overview
 
@@ -9,10 +9,12 @@ flowchart TB
   subgraph untrusted [Untrusted]
     APIs[External source APIs]
     StdinAgg[Aggregator stdin JSON]
+    ApiCaller[REST API callers M5]
   end
   subgraph semi [Semi-trusted]
     Prover[oracle-prover]
     Operator[Pipeline operator]
+    Postgres[PostgreSQL M4]
   end
   subgraph trusted [Trust assumptions]
     Verifier[oracle-verifier / on-chain vk]
@@ -24,6 +26,12 @@ flowchart TB
   Agg --> Prover
   Prover --> Proof[Groth16 proof]
   Proof --> Verifier
+  Proof --> Postgres
+  ApiCaller --> Server[oracle-server M5]
+  Server --> Fetcher
+  Server --> Agg
+  Server --> Prover
+  Server --> Postgres
 ```
 
 ## Actors
@@ -33,15 +41,18 @@ flowchart TB
 | **Honest operator** | Runs fetcher, aggregator, prover | Correct market resolution |
 | **Malicious source** | Returns biased JSON / wrong outcome | Skew aggregation |
 | **Malicious prover** (M3) | Chooses arbitrary private witnesses | Forge proof for wrong outcome |
-| **API caller** | Hits `oracle-server` endpoints | DoS, probe internals |
+| **API caller** (M5) | Hits `oracle-server` endpoints | DoS, probe internals, trigger bogus resolves |
+| **Database attacker** (M4) | SQL injection or credential theft | Tamper proof archive or reputation |
 | **On-chain user** (M6) | Submits proof to contract | Settle market in their favor |
 
 ## Trust boundaries
 
 1. **Fetcher → core:** Bodies are untrusted. Parsing and confidence bounds are the gate (F1–F3).
-2. **CLI stdin → aggregator:** JSON is untrusted. Serde + aggregation invariants must hold without panic.
-3. **Aggregator → prover (M3):** Aggregation result is the semantic truth; circuit must prove witness consistency.
-4. **Verifier:** Only trusts vk + public inputs + proof bytes — not the prover.
+2. **CLI stdin → aggregator:** JSON is untrusted. Bounded read + serde + aggregation invariants must hold without panic.
+3. **Aggregator → prover (M3):** Aggregation result is the semantic truth; circuit must prove witness consistency (Z6).
+4. **Prover → storage (M4):** Proof bytes and public inputs stored via parameterized sqlx queries only.
+5. **API → pipeline (M5):** Authenticated `/resolve` triggers fetch → aggregate → prove → store; disputed results return 409.
+6. **Verifier:** Only trusts vk + public inputs + proof bytes, not the prover or API.
 
 ## Attack surfaces
 
@@ -50,30 +61,22 @@ flowchart TB
 | HTTP response injection | Wrong outcome in JSON | Parse validation; BLAKE3 audit trail |
 | Outlier minority source | Skew if threshold wrong | `remove_outliers` at 0.70; disputed flag |
 | Empty / single source | Weak consensus | `disputed` when agreement &lt; 0.60 |
-| Stdin panic on bad JSON | DoS on CLI | `anyhow::Context` errors (no panic) |
+| Stdin / body size | Memory DoS | 1 MiB stdin cap; API body limit (M5) |
 | Non-binary witness (M3) | Fake majority | Z1 boolean constraints |
-| Witness substitution (M3) | Hide source data | Z5 Poseidon commitments |
+| Witness substitution (M3) | Hide source data | Z5 commitments; Z6 parity with `aggregate()` |
 | Tampered proof (M3) | Accept invalid proof | Z7/Z8 Groth16 verify |
 | Leaked proving key | Forge arbitrary proofs | G4 gitignore + CI secrets grep |
+| SQL injection (M4) | Corrupt archive | sqlx parameterized queries |
+| Unauthenticated `/resolve` (M5) | Spam resolutions | API key middleware |
+| Public input mismatch (M6) | On-chain/off-chain drift | Single canonical `public_inputs()` encoder |
 | Dependency compromise | Supply chain | `cargo audit`, `cargo deny` in CI |
 
-## Composability (future)
+## Composability
 
 | Integration | Note |
 | --- | --- |
-| PostgreSQL archive (M4) | Store proofs and source hashes; integrity via DB access control |
-| REST `/resolve` (M5) | Authenticate operators; rate limit |
-| Solidity verifier (M6) | Public input encoding must match off-chain verifier exactly |
-
-## x-ray summary (Rust codebase)
-
-| Metric | Value |
-| --- | --- |
-| Core modules | `fetcher`, `aggregator` |
-| Binaries | 6 workspace bins |
-| Unit tests | 7 in `oracle-core` |
-| External I/O | HTTP (reqwest), stdin JSON |
-| Crypto today | BLAKE3 only |
-| Crypto planned | Groth16 BN254, Poseidon |
+| PostgreSQL archive (M4) | Proofs and source hashes; access control on `DATABASE_URL` |
+| REST `/resolve` (M5) | Auth + rate limit; 409 on `disputed` |
+| Solidity verifier (M6) | Public input order must match Rust verifier exactly |
 
 See [adversarial-vectors.md](adversarial-vectors.md) for test mapping and [audit-findings.md](audit-findings.md) for the Phase 1 baseline review.

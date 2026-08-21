@@ -1,28 +1,18 @@
 # Audit skills setup
 
-## Local clones (storage)
-
-```text
-/home/joshi/storage/cursor-skills/pashov-skills/     # x-ray, solidity-auditor
-/home/joshi/storage/cursor-skills/web3-skills/       # client-auditor, contract-auditor
-```
-
-## Cursor install prompts
-
-```text
-Install https://github.com/pashov/skills/
-Install skills in https://github.com/DarkNavySecurity/web3-skills/
-```
+Audit tooling runs from local Cursor skills only (`.cursor/skills/`, not committed).
 
 ## Project skill
 
-[`.cursor/skills/oracle-security/SKILL.md`](../../.cursor/skills/oracle-security/SKILL.md) — always active for this repo.
+Use the oracle-security skill in `.cursor/skills/oracle-security/SKILL.md` before editing fetcher, aggregator, or security docs.
 
 ## Suggested workflow
 
-| When | Command |
+| When | Action |
 | --- | --- |
-| Phase 1 baseline | x-ray → `docs/security/x-ray/` |
-| Before M3 | `/client-auditor start crates/oracle-core` |
-| After M3 | `/client-auditor verify crates/oracle-core deep` |
-| M6 Solidity | pashov `solidity-auditor`, DarkNavy `contract-auditor` |
+| Every PR | Run adversarial tests + full CI locally |
+| Before M3 | Deep review of ZK invariants Z1–Z8 |
+| After M3 | Re-run adversarial ZK tests |
+| M6 Solidity | Contract review + Foundry invalid-proof test |
+
+Findings land in `docs/security/audit-findings.md` with invariant IDs.

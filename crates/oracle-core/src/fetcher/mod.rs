@@ -2,6 +2,7 @@
 
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use crate::MAX_SOURCES;
 use futures::future::join_all;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
@@ -96,7 +97,16 @@ pub async fn fetch_source(
                 let body = resp.text().await.ok()?;
                 let hash = *blake3::hash(body.as_bytes()).as_bytes();
                 let fetched_at = unix_now();
-                return parse_response(source_id, &body, hash, fetched_at).ok();
+                match parse_response(source_id, &body, hash, fetched_at) {
+                    Ok(response) => return Some(response),
+                    Err(err) => {
+                        tracing::warn!(
+                            source_id,
+                            %err,
+                            "dropping source response after parse failure"
+                        );
+                    }
+                }
             }
             _ => {
                 if attempt < retries {
@@ -115,7 +125,21 @@ pub async fn fetch_all_sources(
     client: &Client,
     sources: &[(String, String)],
 ) -> Vec<SourceResponse> {
-    let futures = sources
+    fetch_all_sources_with_limit(client, sources, None).await
+}
+
+/// Fetch sources concurrently, optionally capping how many URLs are requested.
+pub async fn fetch_all_sources_with_limit(
+    client: &Client,
+    sources: &[(String, String)],
+    max_sources: Option<usize>,
+) -> Vec<SourceResponse> {
+    let effective_limit =
+        max_sources.map_or(MAX_SOURCES, |limit| limit.min(MAX_SOURCES));
+
+    let capped = sources.iter().take(effective_limit).collect::<Vec<_>>();
+
+    let futures = capped
         .iter()
         .map(|(id, url)| fetch_source(client, url, id, 2));
 
@@ -137,6 +161,36 @@ mod tests {
         assert_eq!(resp.outcome, Outcome::Yes);
         assert!((resp.confidence - 0.95).abs() < f64::EPSILON);
         assert_eq!(resp.source_id, "ap-news");
+    }
+
+    #[tokio::test]
+    async fn fetch_all_sources_respects_max_limit() {
+        let server = MockServer::start().await;
+
+        for path_suffix in ["a", "b", "c"] {
+            Mock::given(method("GET"))
+                .and(path(format!("/{path_suffix}")))
+                .respond_with(ResponseTemplate::new(200).set_body_json(
+                    serde_json::json!({
+                        "outcome": "YES",
+                        "confidence": 0.9
+                    }),
+                ))
+                .mount(&server)
+                .await;
+        }
+
+        let client = Client::new();
+        let base = server.uri();
+        let sources = vec![
+            ("s1".to_owned(), format!("{base}/a")),
+            ("s2".to_owned(), format!("{base}/b")),
+            ("s3".to_owned(), format!("{base}/c")),
+        ];
+
+        let responses =
+            fetch_all_sources_with_limit(&client, &sources, Some(2)).await;
+        assert_eq!(responses.len(), 2);
     }
 
     #[test]
