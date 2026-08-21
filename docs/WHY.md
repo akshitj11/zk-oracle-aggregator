@@ -50,4 +50,4 @@ flowchart LR
   M5 --> M6[M6 on-chain Sepolia]
 ```
 
-**Current:** M0–M5 ship fetch, aggregate, prove, Postgres archive, and REST resolve. M6 on-chain verify and M7 production hardening are next.
+**Current:** M0–M6 are landed (fetch through on-chain mock verifier). M7 production hardening (sources, ceremony, observability) is documented; swap mock verifier before mainnet.
