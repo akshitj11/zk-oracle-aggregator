@@ -1015,6 +1015,7 @@ name = "oracle-aggregator"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "clap",
  "oracle-core",
  "serde_json",
 ]
