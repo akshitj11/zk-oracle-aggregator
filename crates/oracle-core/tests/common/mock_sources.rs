@@ -20,28 +20,34 @@ impl MockSourceCluster {
 
         Mock::given(method("GET"))
             .and(path("/ap"))
-            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
-                "outcome": "YES",
-                "confidence": 0.92
-            })))
+            .respond_with(ResponseTemplate::new(200).set_body_json(
+                serde_json::json!({
+                    "outcome": "YES",
+                    "confidence": 0.92
+                }),
+            ))
             .mount(&server)
             .await;
 
         Mock::given(method("GET"))
             .and(path("/reuters"))
-            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
-                "outcome": "YES",
-                "confidence": 0.88
-            })))
+            .respond_with(ResponseTemplate::new(200).set_body_json(
+                serde_json::json!({
+                    "outcome": "YES",
+                    "confidence": 0.88
+                }),
+            ))
             .mount(&server)
             .await;
 
         Mock::given(method("GET"))
             .and(path("/bbc"))
-            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
-                "outcome": "NO",
-                "confidence": 0.35
-            })))
+            .respond_with(ResponseTemplate::new(200).set_body_json(
+                serde_json::json!({
+                    "outcome": "NO",
+                    "confidence": 0.35
+                }),
+            ))
             .mount(&server)
             .await;
 

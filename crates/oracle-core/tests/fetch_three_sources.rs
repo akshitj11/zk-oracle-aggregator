@@ -7,7 +7,8 @@ use reqwest::Client;
 
 #[tokio::test]
 async fn fetch_three_mock_sources_aggregate_yes() {
-    let cluster = common::mock_sources::MockSourceCluster::three_source_consensus().await;
+    let cluster =
+        common::mock_sources::MockSourceCluster::three_source_consensus().await;
     let client = Client::new();
     let responses = fetch_all_sources(&client, &cluster.sources).await;
 

@@ -7,7 +7,10 @@ use oracle_core::{aggregate, SourceResponse};
 const DEFAULT_MAX_STDIN_BYTES: usize = 1_048_576;
 
 #[derive(Parser)]
-#[command(name = "oracle-aggregator", about = "Aggregate source responses from stdin JSON")]
+#[command(
+    name = "oracle-aggregator",
+    about = "Aggregate source responses from stdin JSON"
+)]
 struct Args {
     /// Maximum stdin size in bytes.
     #[arg(long, default_value_t = DEFAULT_MAX_STDIN_BYTES)]
@@ -15,7 +18,7 @@ struct Args {
 }
 
 fn read_stdin_limited(max_bytes: usize) -> anyhow::Result<String> {
-    let mut handle = io::stdin().lock();
+    let handle = io::stdin().lock();
     let mut buf = Vec::new();
     handle
         .take(max_bytes as u64 + 1)
