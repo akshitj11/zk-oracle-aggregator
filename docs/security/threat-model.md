@@ -50,7 +50,7 @@ flowchart TB
 1. **Fetcher → core:** Bodies are untrusted. Parsing and confidence bounds are the gate (F1–F3).
 2. **CLI stdin → aggregator:** JSON is untrusted. Bounded read + serde + aggregation invariants must hold without panic.
 3. **Aggregator → prover (M3):** Aggregation result is the semantic truth; circuit must prove witness consistency (Z6).
-4. **Prover → storage (M4):** Proof bytes and public inputs stored via parameterized sqlx queries only.
+4. **Prover → storage (M4):** `OracleStore` writes proof bytes and `PublicInputs` JSON via parameterized sqlx queries; no string-built SQL.
 5. **API → pipeline (M5):** Authenticated `/resolve` triggers fetch → aggregate → prove → store; disputed results return 409.
 6. **Verifier:** Only trusts vk + public inputs + proof bytes, not the prover or API.
 
@@ -66,7 +66,7 @@ flowchart TB
 | Witness substitution (M3) | Hide source data | BLAKE3 agreement hash over included `raw_hash` (Z5); Z6 parity with `aggregate()` |
 | Tampered proof (M3) | Accept invalid proof | Z7/Z8 Groth16 verify |
 | Leaked proving key | Forge arbitrary proofs | G4 gitignore + CI secrets grep |
-| SQL injection (M4) | Corrupt archive | sqlx parameterized queries |
+| SQL injection (M4) | Corrupt archive | sqlx parameterized queries in `OracleStore` |
 | Unauthenticated `/resolve` (M5) | Spam resolutions | API key middleware |
 | Public input mismatch (M6) | On-chain/off-chain drift | Single canonical `public_inputs()` encoder |
 | Dependency compromise | Supply chain | `cargo audit`, `cargo deny` in CI |
