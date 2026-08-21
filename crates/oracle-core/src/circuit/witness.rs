@@ -88,6 +88,20 @@ pub fn build_witness(
     Ok((circuit, result))
 }
 
+/// Blake3 hash over included source `raw_hash` values (Z5 commitment).
+pub fn agreement_hash(
+    responses: &[SourceResponse],
+    included_ids: &HashSet<&str>,
+) -> [u8; 32] {
+    let mut hasher = blake3::Hasher::new();
+    for response in responses {
+        if included_ids.contains(response.source_id.as_str()) {
+            hasher.update(&response.raw_hash);
+        }
+    }
+    *hasher.finalize().as_bytes()
+}
+
 /// Empty padded circuit for trusted setup (all-zero witnesses).
 pub fn padded_empty_circuit() -> OracleCircuit {
     OracleCircuit {
