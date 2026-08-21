@@ -151,4 +151,60 @@ impl OracleStore {
         }
         Ok(())
     }
+
+    /// Increment reputation counters for a source after resolution.
+    pub async fn update_reputation(
+        &self,
+        source_id: &str,
+        was_correct: bool,
+    ) -> Result<(), StoreError> {
+        let correct_delta = if was_correct { 1 } else { 0 };
+
+        sqlx::query!(
+            r#"
+            INSERT INTO source_reputation (source_id, correct_count, total_count, current_weight)
+            VALUES ($1, $2, 1, 0.5)
+            ON CONFLICT (source_id) DO UPDATE SET
+                correct_count = source_reputation.correct_count + $2,
+                total_count = source_reputation.total_count + 1,
+                current_weight = LEAST(
+                    1.0,
+                    (source_reputation.correct_count + $2)::numeric
+                        / (source_reputation.total_count + 1)
+                ),
+                last_updated = NOW()
+            "#,
+            source_id,
+            correct_delta
+        )
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
+    /// Load reputation snapshot for a source id.
+    pub async fn get_reputation(
+        &self,
+        source_id: &str,
+    ) -> Result<Option<ReputationRecord>, StoreError> {
+        let row = sqlx::query!(
+            r#"
+            SELECT source_id, correct_count, total_count, current_weight, last_updated
+            FROM source_reputation
+            WHERE source_id = $1
+            "#,
+            source_id
+        )
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(row.map(|row| ReputationRecord {
+            source_id: row.source_id,
+            correct_count: row.correct_count.unwrap_or(0),
+            total_count: row.total_count.unwrap_or(0),
+            current_weight: row.current_weight.unwrap_or_default(),
+            last_updated: row.last_updated.unwrap_or_else(Utc::now),
+        }))
+    }
 }
