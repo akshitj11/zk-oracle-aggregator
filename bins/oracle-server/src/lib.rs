@@ -14,6 +14,7 @@ use anyhow::Context;
 use oracle_core::prover::OracleProver;
 use oracle_core::storage::OracleStore;
 use reqwest::Client;
+use tokio::signal;
 use tracing_subscriber::EnvFilter;
 
 use crate::config::{load_source_pairs, ServerConfig};
@@ -47,7 +48,17 @@ pub async fn run() -> anyhow::Result<()> {
     let addr: SocketAddr = cfg.listen_addr.parse().context("parse LISTEN_ADDR")?;
     tracing::info!(%addr, "oracle-server listening");
     let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, app).await?;
+
+    let shutdown = async {
+        signal::ctrl_c()
+            .await
+            .expect("failed to install CTRL+C handler");
+        tracing::info!("shutdown signal received");
+    };
+
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown)
+        .await?;
     Ok(())
 }
 
