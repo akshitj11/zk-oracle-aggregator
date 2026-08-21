@@ -1,6 +1,6 @@
 # Security invariants
 
-Statements that must hold for the oracle pipeline to be trustworthy. Status: **implemented** (M0–M2) or **planned** (M3 ZK).
+Statements that must hold for the oracle pipeline to be trustworthy. M0–M3 invariants are **implemented**; M4–M6 entries remain **planned** until those milestones land.
 
 ## Global
 
