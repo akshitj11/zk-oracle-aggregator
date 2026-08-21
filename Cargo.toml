@@ -39,7 +39,7 @@ axum = "0.8"
 tower-http = { version = "0.7", features = ["trace"] }
 clap = { version = "4", features = ["derive"] }
 toml = "1.1"
-sqlx = { version = "0.8", features = [
+sqlx = { version = "0.9", features = [
   "runtime-tokio",
   "postgres",
   "uuid",
@@ -52,15 +52,15 @@ uuid = { version = "1", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 
 # ZK (M3)
-ark-bn254 = "0.4"
-ark-ec = "0.4"
-ark-ff = "0.4"
-ark-groth16 = "0.4"
-ark-r1cs-std = "0.4"
-ark-relations = "0.4"
-ark-serialize = "0.4"
-ark-snark = "0.4"
-ark-std = "0.4"
+ark-bn254 = "0.6"
+ark-ec = "0.6"
+ark-ff = "0.6"
+ark-groth16 = "0.6"
+ark-r1cs-std = "0.6"
+ark-relations = "0.6"
+ark-serialize = "0.6"
+ark-snark = "0.6"
+ark-std = "0.6"
 
 [workspace.lints.rust]
 unsafe_code = "warn"
