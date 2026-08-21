@@ -63,7 +63,7 @@ flowchart TB
 | Empty / single source | Weak consensus | `disputed` when agreement &lt; 0.60 |
 | Stdin / body size | Memory DoS | 1 MiB stdin cap; API body limit (M5) |
 | Non-binary witness (M3) | Fake majority | Z1 boolean constraints |
-| Witness substitution (M3) | Hide source data | Z5 commitments; Z6 parity with `aggregate()` |
+| Witness substitution (M3) | Hide source data | BLAKE3 agreement hash over included `raw_hash` (Z5); Z6 parity with `aggregate()` |
 | Tampered proof (M3) | Accept invalid proof | Z7/Z8 Groth16 verify |
 | Leaked proving key | Forge arbitrary proofs | G4 gitignore + CI secrets grep |
 | SQL injection (M4) | Corrupt archive | sqlx parameterized queries |
