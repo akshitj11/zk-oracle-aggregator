@@ -3,7 +3,7 @@
 use std::collections::HashSet;
 
 use ark_bn254::Fr;
-use ark_relations::r1cs::ConstraintSystem;
+use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystem};
 
 use oracle_core::aggregator::aggregate;
 use oracle_core::circuit::{build_witness, agreement_hash, WitnessError, MAJORITY_MARGIN_BITS};
@@ -71,6 +71,34 @@ fn z1_outcome_witnesses_are_binary() {
         let v = outcome.unwrap();
         assert!(v == Fr::from(0u64) || v == Fr::from(1u64));
     }
+}
+
+#[test]
+fn z2_excluded_sources_do_not_count_toward_total() {
+    let responses = vec![
+        response("a", Outcome::Yes, 0.9),
+        response("b", Outcome::Yes, 0.9),
+        response("c", Outcome::Yes, 0.9),
+        response("d", Outcome::No, 0.9),
+    ];
+    let (circuit, result) = build_witness(&responses).unwrap();
+    assert_eq!(result.outcome, Outcome::Yes);
+    assert_eq!(result.source_count, 3);
+    let d_index = 3;
+    assert_eq!(circuit.source_included[d_index], Some(Fr::from(0u64)));
+}
+
+#[test]
+fn included_source_ids_matches_outlier_filter() {
+    let responses = vec![
+        response("a", Outcome::Yes, 0.9),
+        response("b", Outcome::Yes, 0.9),
+        response("c", Outcome::Yes, 0.9),
+        response("d", Outcome::No, 0.9),
+    ];
+    let ids = oracle_core::circuit::included_source_ids(&responses);
+    assert!(ids.contains("a"));
+    assert!(!ids.contains("d"));
 }
 
 #[test]
