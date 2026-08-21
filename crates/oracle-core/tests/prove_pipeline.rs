@@ -18,6 +18,20 @@ fn response(id: &str, outcome: Outcome, confidence: f64) -> SourceResponse {
 }
 
 #[test]
+fn build_public_inputs_matches_aggregation() {
+    use oracle_core::prover::build_public_inputs;
+
+    let responses = vec![
+        response("src-a", Outcome::Yes, 0.92),
+        response("src-b", Outcome::Yes, 0.88),
+    ];
+    let (_, result) = oracle_core::circuit::build_witness(&responses).expect("witness");
+    let public = build_public_inputs(&responses, &result, 1);
+    assert!(public.outcome);
+    assert_eq!(public.source_count, 2);
+}
+
+#[test]
 fn prove_responses_round_trip() {
     let prover = OracleProver::generate_keys().expect("setup");
     let responses = vec![
