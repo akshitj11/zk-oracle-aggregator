@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO source_responses (\n                    proof_id, source_id, outcome, confidence, raw_hash, fetched_at\n                )\n                VALUES ($1, $2, $3, $4, $5, $6)\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Text",
+        "Numeric",
+        "Bytea",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "465ee42a8536cd653c08dc35b47442da9009b729c8392e2ac84e460b4d58a21f"
+}

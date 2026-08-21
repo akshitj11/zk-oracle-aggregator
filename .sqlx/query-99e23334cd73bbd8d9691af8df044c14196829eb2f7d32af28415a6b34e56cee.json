@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT\n                id,\n                market_id,\n                outcome,\n                source_count,\n                agreement_ratio,\n                confidence,\n                proof_bytes,\n                public_inputs,\n                onchain_tx_hash,\n                created_at\n            FROM oracle_proofs\n            WHERE market_id = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "market_id",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 2,
+        "name": "outcome",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 3,
+        "name": "source_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "agreement_ratio",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 5,
+        "name": "confidence",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 6,
+        "name": "proof_bytes",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 7,
+        "name": "public_inputs",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 8,
+        "name": "onchain_tx_hash",
+        "type_info": "Bytea"
+      },
+      {
+        "ordinal": 9,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true
+    ]
+  },
+  "hash": "99e23334cd73bbd8d9691af8df044c14196829eb2f7d32af28415a6b34e56cee"
+}

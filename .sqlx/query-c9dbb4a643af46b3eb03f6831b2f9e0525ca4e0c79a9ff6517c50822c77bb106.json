@@ -1,0 +1,46 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT source_id, correct_count, total_count, current_weight, last_updated\n            FROM source_reputation\n            WHERE source_id = $1\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "source_id",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "correct_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "total_count",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "current_weight",
+        "type_info": "Numeric"
+      },
+      {
+        "ordinal": 4,
+        "name": "last_updated",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "c9dbb4a643af46b3eb03f6831b2f9e0525ca4e0c79a9ff6517c50822c77bb106"
+}

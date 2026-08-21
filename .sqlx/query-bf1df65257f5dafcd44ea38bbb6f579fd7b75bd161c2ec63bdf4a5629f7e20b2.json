@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO oracle_proofs (\n                market_id, outcome, source_count, agreement_ratio, confidence,\n                proof_bytes, public_inputs\n            )\n            VALUES ($1, $2, $3, $4, $5, $6, $7)\n            RETURNING id\n            ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Bytea",
+        "Bool",
+        "Int4",
+        "Numeric",
+        "Numeric",
+        "Bytea",
+        "Jsonb"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "bf1df65257f5dafcd44ea38bbb6f579fd7b75bd161c2ec63bdf4a5629f7e20b2"
+}
