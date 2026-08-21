@@ -200,6 +200,20 @@ jobs:
           fi
           echo "No committed pk/proof artifacts"
 
+  prove-verify-smoke:
+    name: Prove-verify smoke
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v7
+
+      - name: Install stable toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
+      - name: Run prove-verify smoke
+        run: ./scripts/prove-verify-smoke.sh
+
   cargo-miri:
     if: false # arkworks/zk not miri-ready; enable for fetcher-only tests later
     uses: ./.github/workflows/cargo_miri.yaml
