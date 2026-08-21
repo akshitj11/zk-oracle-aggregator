@@ -6,6 +6,7 @@ pub mod aggregator;
 pub mod circuit;
 pub mod fetcher;
 pub mod prover;
+pub mod storage;
 
 /// Maximum source slots in the ZK circuit and fetch pipeline.
 pub const MAX_SOURCES: usize = 16;
