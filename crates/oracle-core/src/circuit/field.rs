@@ -23,6 +23,7 @@ pub fn confidence_to_field(confidence: f64) -> Fr {
 }
 
 /// Embed the first 8 bytes of a hash into the field (fits BN254 scalar).
+#[allow(dead_code)]
 pub fn hash_prefix_to_field(hash: &[u8; 32]) -> Fr {
     let mut limb = [0u8; 8];
     limb.copy_from_slice(&hash[..8]);
@@ -35,6 +36,7 @@ pub fn bool_to_field(value: bool) -> Fr {
 }
 
 /// Serialize field elements for Groth16 verify (uncompressed big-endian limbs).
+#[allow(dead_code)]
 pub fn field_to_bytes(value: &Fr) -> [u8; 32] {
     let bigint = value.into_bigint();
     let mut bytes = [0u8; 32];
