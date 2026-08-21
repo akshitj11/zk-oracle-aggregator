@@ -1,4 +1,10 @@
 # Transitive rkyv via rust_decimal optional feature; oracle-core uses serde+std only.
 # Remove this ignore when rust_decimal publishes a release without vulnerable rkyv 0.7.x.
 [advisories]
-ignore = ["RUSTSEC-2026-0235"]
+ignore = [
+  "RUSTSEC-2026-0235",
+  # arkworks 0.4 transitive; accepted until major ark upgrade
+  "RUSTSEC-2024-0388",
+  "RUSTSEC-2024-0436",
+  "RUSTSEC-2025-0055",
+]

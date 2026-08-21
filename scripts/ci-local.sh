@@ -84,4 +84,7 @@ else
   echo "skip: cargo-msrv not installed"
 fi
 
+echo "== prove-verify smoke =="
+"${ROOT}/scripts/prove-verify-smoke.sh"
+
 echo "ci-local: OK"
