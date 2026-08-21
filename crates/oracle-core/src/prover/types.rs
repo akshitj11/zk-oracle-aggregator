@@ -1,5 +1,11 @@
 //! Proof artifacts and verifier-facing public inputs.
 
+use ark_bn254::Fr;
+
+use crate::circuit::bool_to_field;
+use crate::fetcher::Outcome;
+use crate::aggregator::AggregationResult;
+
 use serde::{Deserialize, Serialize};
 
 /// Values revealed to verifiers (on-chain or CLI).
@@ -13,6 +19,30 @@ pub struct PublicInputs {
     pub agreement_hash: [u8; 32],
     /// Unix timestamp (seconds) for the resolution.
     pub timestamp: u64,
+}
+
+impl PublicInputs {
+    /// Build public inputs from an aggregation result and agreement hash.
+    pub fn from_aggregation(
+        result: &AggregationResult,
+        agreement_hash: [u8; 32],
+        timestamp: u64,
+    ) -> Self {
+        Self {
+            outcome: result.outcome == Outcome::Yes,
+            source_count: u32::try_from(result.source_count).unwrap_or(u32::MAX),
+            agreement_hash,
+            timestamp,
+        }
+    }
+
+    /// Values passed to Groth16 verify (must match circuit public inputs).
+    pub fn to_verifier_inputs(&self) -> Vec<Fr> {
+        vec![
+            bool_to_field(self.outcome),
+            Fr::from(u64::from(self.source_count)),
+        ]
+    }
 }
 
 /// Serialized Groth16 proof bytes plus metadata.
