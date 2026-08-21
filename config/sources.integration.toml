@@ -1,0 +1,14 @@
+# Three-source integration config (paths match tests/common/mock_sources.rs).
+# Replace the host/port with your wiremock base URI before running oracle-fetcher.
+
+[[sources]]
+id = "ap-news"
+url = "http://127.0.0.1:8081/ap"
+
+[[sources]]
+id = "reuters"
+url = "http://127.0.0.1:8081/reuters"
+
+[[sources]]
+id = "bbc"
+url = "http://127.0.0.1:8081/bbc"
