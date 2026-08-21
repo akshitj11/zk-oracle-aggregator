@@ -46,6 +46,9 @@ impl PublicInputs {
 }
 
 /// Serialized Groth16 proof bytes plus metadata.
+///
+/// Proof bytes use arkworks uncompressed serialization for local dev;
+/// production deployments should pin vk hash and proof format at the API boundary.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct OracleProof {
     pub proof_bytes: Vec<u8>,
