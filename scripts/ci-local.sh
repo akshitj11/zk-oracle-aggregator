@@ -5,6 +5,15 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
+export SQLX_OFFLINE=true
+
+if command -v docker >/dev/null 2>&1 && docker compose ps postgres 2>/dev/null | grep -q running; then
+  export DATABASE_URL="${DATABASE_URL:-postgres://oracle:oracle@localhost:5432/oracle}"
+  if command -v psql >/dev/null 2>&1; then
+    psql "$DATABASE_URL" -f migrations/001_init.sql >/dev/null 2>&1 || true
+  fi
+fi
+
 echo "== cargo build =="
 cargo build --workspace --all-targets --all-features
 

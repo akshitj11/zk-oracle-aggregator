@@ -95,6 +95,25 @@ jobs:
     name: Cargo test
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: oracle
+          POSTGRES_PASSWORD: oracle
+          POSTGRES_DB: oracle
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://oracle:oracle@localhost:5432/oracle
+      SQLX_OFFLINE: true
+
     steps:
       - name: Fetch Repository
         uses: actions/checkout@v7
@@ -106,6 +125,12 @@ jobs:
         uses: taiki-e/install-action@v2.85.11
         with:
           tool: cargo-nextest
+
+      - name: Install psql client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Apply migrations
+        run: psql "$DATABASE_URL" -f migrations/001_init.sql
 
       - name: Cargo test
         run: cargo nextest run --workspace --all-targets --all-features --no-tests=pass
