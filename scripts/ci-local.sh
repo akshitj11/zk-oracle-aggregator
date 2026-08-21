@@ -11,6 +11,7 @@ if command -v docker >/dev/null 2>&1 && docker compose ps postgres 2>/dev/null |
   export DATABASE_URL="${DATABASE_URL:-postgres://oracle:oracle@localhost:5432/oracle}"
   if command -v psql >/dev/null 2>&1; then
     psql "$DATABASE_URL" -f migrations/001_init.sql >/dev/null 2>&1 || true
+    psql "$DATABASE_URL" -f migrations/002_indexes.sql >/dev/null 2>&1 || true
   fi
 fi
 

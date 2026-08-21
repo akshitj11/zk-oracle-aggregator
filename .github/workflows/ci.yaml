@@ -130,7 +130,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - name: Apply migrations
-        run: psql "$DATABASE_URL" -f migrations/001_init.sql
+        run: |
+          psql "$DATABASE_URL" -f migrations/001_init.sql
+          psql "$DATABASE_URL" -f migrations/002_indexes.sql
 
       - name: Cargo test
         run: cargo nextest run --workspace --all-targets --all-features --no-tests=pass
