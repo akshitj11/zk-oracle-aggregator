@@ -36,15 +36,14 @@ struct ProofFile {
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
-    let rpc_url = args
-        .rpc_url
-        .or_else(|| std::env::var("ETH_RPC_URL").ok());
+    let rpc_url = args.rpc_url.or_else(|| std::env::var("ETH_RPC_URL").ok());
     let contract = args
         .contract
         .or_else(|| std::env::var("ORACLE_CONTRACT").ok());
     let raw = std::fs::read_to_string(&args.proof)
         .with_context(|| format!("read {}", args.proof.display()))?;
-    let file: ProofFile = serde_json::from_str(&raw).context("parse proof JSON")?;
+    let file: ProofFile =
+        serde_json::from_str(&raw).context("parse proof JSON")?;
 
     let market_bytes =
         hex::decode(&args.market_id).context("decode market_id hex")?;
@@ -72,11 +71,7 @@ async fn main() -> Result<()> {
         return Ok(());
     }
 
-    println!(
-        "submit to {} via {}",
-        contract.unwrap(),
-        rpc_url.unwrap()
-    );
+    println!("submit to {} via {}", contract.unwrap(), rpc_url.unwrap());
     println!("{calldata}");
     Ok(())
 }

@@ -70,9 +70,14 @@ where
 {
     type Response = Response;
     type Error = S::Error;
-    type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>>;
+    type Future = Pin<
+        Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>,
+    >;
 
-    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+    fn poll_ready(
+        &mut self,
+        cx: &mut Context<'_>,
+    ) -> Poll<Result<(), Self::Error>> {
         self.inner.poll_ready(cx)
     }
 
@@ -87,9 +92,11 @@ where
         Box::pin(async move {
             let mut bucket = state.lock().await;
             if !bucket.allow() {
-                return Ok(
-                    (StatusCode::TOO_MANY_REQUESTS, "rate limit exceeded").into_response(),
-                );
+                return Ok((
+                    StatusCode::TOO_MANY_REQUESTS,
+                    "rate limit exceeded",
+                )
+                    .into_response());
             }
             fut.await
         })
@@ -130,9 +137,14 @@ where
 {
     type Response = Response;
     type Error = S::Error;
-    type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>>;
+    type Future = Pin<
+        Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send>,
+    >;
 
-    fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+    fn poll_ready(
+        &mut self,
+        cx: &mut Context<'_>,
+    ) -> Poll<Result<(), Self::Error>> {
         self.inner.poll_ready(cx)
     }
 
@@ -144,10 +156,8 @@ where
 
         let expected = self.state.api_key();
         if let Some(key) = expected {
-            let provided = req
-                .headers()
-                .get("x-api-key")
-                .and_then(|v| v.to_str().ok());
+            let provided =
+                req.headers().get("x-api-key").and_then(|v| v.to_str().ok());
             if provided != Some(key) {
                 return Box::pin(async move {
                     Ok((

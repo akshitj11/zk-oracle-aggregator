@@ -77,7 +77,8 @@ pub async fn resolve_market(
     State(state): State<AppState>,
     Json(body): Json<ResolveRequest>,
 ) -> Result<Json<ResolveResponse>, ApiError> {
-    let span = tracing::info_span!("resolve_market", market_id = %body.market_id);
+    let span =
+        tracing::info_span!("resolve_market", market_id = %body.market_id);
     let _guard = span.enter();
 
     let market_bytes = decode_market_id(&body.market_id)?;
@@ -98,8 +99,9 @@ pub async fn resolve_market(
         .duration_since(std::time::UNIX_EPOCH)
         .map_or(0, |d| d.as_secs());
 
-    let (proof, public_inputs) = prove_responses(state.prover(), &responses, timestamp)
-        .map_err(|e| ApiError::internal(e.to_string()))?;
+    let (proof, public_inputs) =
+        prove_responses(state.prover(), &responses, timestamp)
+            .map_err(|e| ApiError::internal(e.to_string()))?;
 
     let proof_id = state
         .store()
@@ -131,7 +133,8 @@ pub async fn resolve_market(
 }
 
 fn decode_market_id(hex_str: &str) -> Result<Vec<u8>, ApiError> {
-    let bytes = hex::decode(hex_str).map_err(|_| ApiError::bad_request("invalid market_id hex"))?;
+    let bytes = hex::decode(hex_str)
+        .map_err(|_| ApiError::bad_request("invalid market_id hex"))?;
     if bytes.is_empty() {
         return Err(ApiError::bad_request("market_id required"));
     }

@@ -45,7 +45,8 @@ pub async fn run() -> anyhow::Result<()> {
     );
 
     let app = build_router(state);
-    let addr: SocketAddr = cfg.listen_addr.parse().context("parse LISTEN_ADDR")?;
+    let addr: SocketAddr =
+        cfg.listen_addr.parse().context("parse LISTEN_ADDR")?;
     tracing::info!(%addr, "oracle-server listening");
     let listener = tokio::net::TcpListener::bind(addr).await?;
 
@@ -65,12 +66,16 @@ pub async fn run() -> anyhow::Result<()> {
 fn load_prover(cfg: &ServerConfig) -> anyhow::Result<OracleProver> {
     match (&cfg.proving_key_path, &cfg.verifying_key_path) {
         (Some(pk), Some(vk)) => {
-            let pk_bytes = std::fs::read(pk).with_context(|| format!("read {}", pk.display()))?;
-            let vk_bytes =
-                std::fs::read(vk).with_context(|| format!("read {}", vk.display()))?;
-            OracleProver::from_key_bytes(&pk_bytes, &vk_bytes).context("load keys")
+            let pk_bytes = std::fs::read(pk)
+                .with_context(|| format!("read {}", pk.display()))?;
+            let vk_bytes = std::fs::read(vk)
+                .with_context(|| format!("read {}", vk.display()))?;
+            OracleProver::from_key_bytes(&pk_bytes, &vk_bytes)
+                .context("load keys")
         }
         (None, None) => OracleProver::generate_keys().context("generate keys"),
-        _ => anyhow::bail!("set both PROVING_KEY_PATH and VERIFYING_KEY_PATH, or neither"),
+        _ => anyhow::bail!(
+            "set both PROVING_KEY_PATH and VERIFYING_KEY_PATH, or neither"
+        ),
     }
 }

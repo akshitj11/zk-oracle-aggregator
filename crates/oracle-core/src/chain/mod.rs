@@ -12,10 +12,7 @@ pub struct EthereumProof {
 
 /// Encode the two public field elements used by Groth16 verify on-chain.
 pub fn public_inputs_u256(inputs: &PublicInputs) -> [u128; 2] {
-    [
-        u128::from(inputs.outcome),
-        u128::from(inputs.source_count),
-    ]
+    [u128::from(inputs.outcome), u128::from(inputs.source_count)]
 }
 
 /// Build mock proof components for dev/test networks using the mock verifier scheme.

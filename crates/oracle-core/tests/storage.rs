@@ -122,11 +122,13 @@ async fn save_source_responses_links_to_proof() {
         .await
         .expect("save responses");
 
-    let count: (i64,) = sqlx::query_as("SELECT COUNT(*) FROM source_responses WHERE proof_id = $1")
-        .bind(proof_id)
-        .fetch_one(store.pool())
-        .await
-        .expect("count");
+    let count: (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM source_responses WHERE proof_id = $1",
+    )
+    .bind(proof_id)
+    .fetch_one(store.pool())
+    .await
+    .expect("count");
 
     assert_eq!(count.0, 2);
 }

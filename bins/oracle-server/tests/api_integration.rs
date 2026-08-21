@@ -12,7 +12,10 @@ use tower::ServiceExt;
 use wiremock::matchers::{method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
-async fn test_state(api_key: Option<String>, sources: Vec<(String, String)>) -> AppState {
+async fn test_state(
+    api_key: Option<String>,
+    sources: Vec<(String, String)>,
+) -> AppState {
     let url = std::env::var("DATABASE_URL").expect("DATABASE_URL required");
     let store = OracleStore::connect(&url).await.expect("connect");
     let prover = OracleProver::generate_keys().expect("keys");
@@ -24,17 +27,17 @@ async fn mock_consensus_sources() -> (MockServer, Vec<(String, String)>) {
     let server = MockServer::start().await;
     let base = server.uri();
 
-    for (p, outcome, confidence) in [
-        ("/a", "YES", 0.9),
-        ("/b", "YES", 0.85),
-        ("/c", "NO", 0.2),
-    ] {
+    for (p, outcome, confidence) in
+        [("/a", "YES", 0.9), ("/b", "YES", 0.85), ("/c", "NO", 0.2)]
+    {
         Mock::given(method("GET"))
             .and(path(p))
-            .respond_with(ResponseTemplate::new(200).set_body_json(serde_json::json!({
-                "outcome": outcome,
-                "confidence": confidence
-            })))
+            .respond_with(ResponseTemplate::new(200).set_body_json(
+                serde_json::json!({
+                    "outcome": outcome,
+                    "confidence": confidence
+                }),
+            ))
             .mount(&server)
             .await;
     }

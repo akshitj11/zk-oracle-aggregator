@@ -70,7 +70,10 @@ impl OracleStore {
     }
 
     /// Load the stored proof for a market id byte slice.
-    pub async fn get_proof(&self, market_id: &[u8]) -> Result<Option<StoredProof>, StoreError> {
+    pub async fn get_proof(
+        &self,
+        market_id: &[u8],
+    ) -> Result<Option<StoredProof>, StoreError> {
         let row = sqlx::query!(
             r#"
             SELECT
@@ -96,8 +99,9 @@ impl OracleStore {
             return Ok(None);
         };
 
-        let public_inputs: PublicInputs = serde_json::from_value(row.public_inputs)
-            .map_err(|e| StoreError::Database(e.to_string()))?;
+        let public_inputs: PublicInputs =
+            serde_json::from_value(row.public_inputs)
+                .map_err(|e| StoreError::Database(e.to_string()))?;
 
         Ok(Some(StoredProof {
             id: row.id,
@@ -127,10 +131,12 @@ impl OracleStore {
     ) -> Result<(), StoreError> {
         for response in responses {
             let outcome = outcome_to_db(response.outcome);
-            let confidence = Decimal::from_f64_retain(response.confidence.clamp(0.0, 1.0))
-                .unwrap_or_default();
-            let fetched_at = DateTime::from_timestamp(response.fetched_at as i64, 0)
-                .unwrap_or_else(Utc::now);
+            let confidence =
+                Decimal::from_f64_retain(response.confidence.clamp(0.0, 1.0))
+                    .unwrap_or_default();
+            let fetched_at =
+                DateTime::from_timestamp(response.fetched_at as i64, 0)
+                    .unwrap_or_else(Utc::now);
 
             sqlx::query!(
                 r#"

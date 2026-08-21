@@ -29,8 +29,8 @@ async fn prove_then_save_and_reload() {
         response("src-b", Outcome::Yes, 0.88),
     ];
     let result = oracle_core::aggregate(&responses);
-    let (proof, public_inputs) = prove_responses(&prover, &responses, 1_700_000_100)
-        .expect("prove");
+    let (proof, public_inputs) =
+        prove_responses(&prover, &responses, 1_700_000_100).expect("prove");
 
     let market_id = [11u8; 32];
     let proof_id = store
@@ -49,7 +49,10 @@ async fn prove_then_save_and_reload() {
         .expect("get")
         .expect("row");
 
-    assert_eq!(loaded.public_inputs.source_count, public_inputs.source_count);
+    assert_eq!(
+        loaded.public_inputs.source_count,
+        public_inputs.source_count
+    );
     assert_eq!(loaded.proof.proof_bytes, proof.proof_bytes);
     assert!(loaded.public_inputs.outcome);
 }
