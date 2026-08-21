@@ -3,6 +3,7 @@
 use oracle_core::fetcher::{Outcome, SourceResponse};
 use oracle_core::prover::{prove_responses, OracleProver};
 use oracle_core::storage::OracleStore;
+use uuid::Uuid;
 
 fn database_url() -> Option<String> {
     std::env::var("DATABASE_URL").ok()
@@ -32,7 +33,7 @@ async fn prove_then_save_and_reload() {
     let (proof, public_inputs) =
         prove_responses(&prover, &responses, 1_700_000_100).expect("prove");
 
-    let market_id = [11u8; 32];
+    let market_id = Uuid::new_v4().as_bytes().to_vec();
     let proof_id = store
         .save_proof(&market_id, &result, &proof, &public_inputs)
         .await

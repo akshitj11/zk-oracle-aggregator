@@ -5,6 +5,7 @@ use oracle_core::fetcher::{Outcome, SourceResponse};
 use oracle_core::prover::{OracleProof, PublicInputs};
 use oracle_core::storage::OracleStore;
 use rust_decimal::Decimal;
+use uuid::Uuid;
 
 fn database_url() -> Option<String> {
     std::env::var("DATABASE_URL").ok()
@@ -51,7 +52,7 @@ async fn save_and_get_proof_round_trip() {
     let url = database_url().expect("DATABASE_URL required for storage tests");
     let store = OracleStore::connect(&url).await.expect("connect");
 
-    let market_id = [42u8; 32];
+    let market_id = Uuid::new_v4().as_bytes().to_vec();
     let proof_id = store
         .save_proof(
             &market_id,
@@ -81,17 +82,19 @@ async fn reputation_upsert_updates_weight() {
     let url = database_url().expect("DATABASE_URL required for storage tests");
     let store = OracleStore::connect(&url).await.expect("connect");
 
+    let source_id = format!("src-{}", Uuid::new_v4());
+
     store
-        .update_reputation("src-a", true)
+        .update_reputation(&source_id, true)
         .await
         .expect("update");
     store
-        .update_reputation("src-a", false)
+        .update_reputation(&source_id, false)
         .await
         .expect("update");
 
     let record = store
-        .get_reputation("src-a")
+        .get_reputation(&source_id)
         .await
         .expect("get")
         .expect("row");
@@ -105,7 +108,7 @@ async fn save_source_responses_links_to_proof() {
     let url = database_url().expect("DATABASE_URL required for storage tests");
     let store = OracleStore::connect(&url).await.expect("connect");
 
-    let market_id = [99u8; 32];
+    let market_id = Uuid::new_v4().as_bytes().to_vec();
     let proof_id = store
         .save_proof(
             &market_id,

@@ -35,6 +35,7 @@ chrono.workspace = true
 [dev-dependencies]
 proptest = "1"
 sqlx.workspace = true
+uuid.workspace = true
 tokio = { workspace = true, features = ["test-util", "macros"] }
 wiremock = "0.6"
 
