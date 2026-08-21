@@ -52,4 +52,4 @@ export DATABASE_URL=postgres://oracle:oracle@localhost:5432/oracle
 
 ## Delivery
 
-Remaining work ships as 100 atomic commits on `main` (~8–12 PRs, no squash). Run `./scripts/ci-local.sh` before each commit.
+Remaining work ships as 100 atomic commits on `main` (~8–12 PRs, no squash). M3 (Groth16 prove path) is complete on branch `m3-zk-circuit`; M4 storage follows. Run `./scripts/ci-local.sh` before each commit.
