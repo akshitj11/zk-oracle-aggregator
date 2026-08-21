@@ -50,4 +50,4 @@ flowchart LR
   M5 --> M6[M6 on-chain Sepolia]
 ```
 
-**Current:** M0–M3 ship fetch, aggregate, Groth16 prove/verify CLIs, health API, and full CI. M4 Postgres archive, M5 REST resolve, and M6 on-chain verify are next.
+**Current:** M0–M5 ship fetch, aggregate, prove, Postgres archive, and REST resolve. M6 on-chain verify and M7 production hardening are next.
