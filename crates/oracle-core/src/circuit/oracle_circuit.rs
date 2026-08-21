@@ -3,7 +3,9 @@
 use ark_bn254::Fr;
 use ark_r1cs_std::fields::fp::FpVar;
 use ark_r1cs_std::prelude::*;
-use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystemRef, SynthesisError};
+use ark_relations::r1cs::{
+    ConstraintSynthesizer, ConstraintSystemRef, SynthesisError,
+};
 
 use crate::MAX_SOURCES;
 
@@ -128,7 +130,8 @@ impl ConstraintSynthesizer<Fr> for OracleCircuit {
         let mut yes_weight = FpVar::zero();
         let mut total_weight = FpVar::zero();
 
-        for ((outcome, weight), flag) in outcomes.iter().zip(weights.iter()).zip(included.iter())
+        for ((outcome, weight), flag) in
+            outcomes.iter().zip(weights.iter()).zip(included.iter())
         {
             let effective = weight * flag;
             total_weight += &effective;
@@ -145,7 +148,8 @@ impl ConstraintSynthesizer<Fr> for OracleCircuit {
         let two_yes = &yes_weight + &yes_weight;
         let diff = &two_yes - &total_weight;
         let yes_branch = &final_outcome * (&diff - &margin - &one);
-        let no_branch = (&one - &final_outcome) * (&total_weight - &two_yes - &margin);
+        let no_branch =
+            (&one - &final_outcome) * (&total_weight - &two_yes - &margin);
         (yes_branch + no_branch).enforce_equal(&zero)?;
 
         Ok(())

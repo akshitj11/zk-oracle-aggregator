@@ -18,7 +18,8 @@ pub fn outcome_to_field(outcome: Outcome) -> Fr {
 
 /// Encode confidence as a fixed-point field element.
 pub fn confidence_to_field(confidence: f64) -> Fr {
-    let scaled = (confidence.clamp(0.0, 1.0) * CONFIDENCE_SCALE as f64).round() as u64;
+    let scaled =
+        (confidence.clamp(0.0, 1.0) * CONFIDENCE_SCALE as f64).round() as u64;
     Fr::from(scaled)
 }
 

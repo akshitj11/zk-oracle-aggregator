@@ -1,7 +1,7 @@
 //! End-to-end prove pipeline over sample responses.
 
 use oracle_core::fetcher::{Outcome, SourceResponse};
-use oracle_core::prover::{OracleProver, prove_responses};
+use oracle_core::prover::{prove_responses, OracleProver};
 
 fn response(id: &str, outcome: Outcome, confidence: f64) -> SourceResponse {
     SourceResponse {
@@ -25,7 +25,8 @@ fn build_public_inputs_matches_aggregation() {
         response("src-a", Outcome::Yes, 0.92),
         response("src-b", Outcome::Yes, 0.88),
     ];
-    let (_, result) = oracle_core::circuit::build_witness(&responses).expect("witness");
+    let (_, result) =
+        oracle_core::circuit::build_witness(&responses).expect("witness");
     let public = build_public_inputs(&responses, &result, 1);
     assert!(public.outcome);
     assert_eq!(public.source_count, 2);
@@ -40,7 +41,8 @@ fn prove_responses_round_trip() {
         response("src-c", Outcome::No, 0.15),
     ];
 
-    let (proof, public) = prove_responses(&prover, &responses, 1_700_000_100).expect("prove");
+    let (proof, public) =
+        prove_responses(&prover, &responses, 1_700_000_100).expect("prove");
     assert!(public.outcome);
     assert_eq!(public.source_count, 3);
 

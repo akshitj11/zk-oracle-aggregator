@@ -2,9 +2,9 @@
 
 use ark_bn254::Fr;
 
+use crate::aggregator::AggregationResult;
 use crate::circuit::bool_to_field;
 use crate::fetcher::Outcome;
-use crate::aggregator::AggregationResult;
 
 use serde::{Deserialize, Serialize};
 
@@ -30,7 +30,8 @@ impl PublicInputs {
     ) -> Self {
         Self {
             outcome: result.outcome == Outcome::Yes,
-            source_count: u32::try_from(result.source_count).unwrap_or(u32::MAX),
+            source_count: u32::try_from(result.source_count)
+                .unwrap_or(u32::MAX),
             agreement_hash,
             timestamp,
         }

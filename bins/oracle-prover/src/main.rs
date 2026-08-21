@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use anyhow::{Context, Result};
 use clap::Parser;
 use oracle_core::fetcher::SourceResponse;
-use oracle_core::prover::{OracleProver, prove_responses};
+use oracle_core::prover::{prove_responses, OracleProver};
 use serde::Serialize;
 
 #[derive(Parser)]
@@ -40,12 +40,16 @@ struct ProverOutput {
 fn load_or_generate_keys(args: &Args) -> Result<OracleProver> {
     match (&args.proving_key, &args.verifying_key) {
         (Some(pk_path), Some(vk_path)) => {
-            let pk = fs::read(pk_path).with_context(|| format!("read {}", pk_path.display()))?;
-            let vk = fs::read(vk_path).with_context(|| format!("read {}", vk_path.display()))?;
+            let pk = fs::read(pk_path)
+                .with_context(|| format!("read {}", pk_path.display()))?;
+            let vk = fs::read(vk_path)
+                .with_context(|| format!("read {}", vk_path.display()))?;
             OracleProver::from_key_bytes(&pk, &vk).context("load keys")
         }
         (None, None) => OracleProver::generate_keys().context("trusted setup"),
-        _ => anyhow::bail!("pass both --proving-key and --verifying-key, or neither"),
+        _ => anyhow::bail!(
+            "pass both --proving-key and --verifying-key, or neither"
+        ),
     }
 }
 
@@ -71,7 +75,8 @@ fn main() -> Result<()> {
     }
 
     let (proof, public_inputs) =
-        prove_responses(&prover, &responses, args.timestamp).map_err(|e| anyhow::anyhow!("{e}"))?;
+        prove_responses(&prover, &responses, args.timestamp)
+            .map_err(|e| anyhow::anyhow!("{e}"))?;
     let verifying_key = prover.verifying_key_bytes().context("serialize vk")?;
 
     let output = ProverOutput {

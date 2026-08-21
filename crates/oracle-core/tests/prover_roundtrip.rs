@@ -4,7 +4,7 @@ use std::collections::HashSet;
 
 use ark_bn254::Fr;
 
-use oracle_core::circuit::{build_witness, agreement_hash};
+use oracle_core::circuit::{agreement_hash, build_witness};
 use oracle_core::fetcher::{Outcome, SourceResponse};
 use oracle_core::prover::{OracleProver, PublicInputs};
 

@@ -44,9 +44,14 @@ impl OracleVerifier {
     }
 
     /// Verify a proof against the circuit public inputs.
-    pub fn verify(&self, proof: &OracleProof, public_inputs: &[Fr]) -> Result<bool, ProverError> {
-        let proof = Proof::deserialize_uncompressed(proof.proof_bytes.as_slice())
-            .map_err(|e| ProverError::Deserialize(e.to_string()))?;
+    pub fn verify(
+        &self,
+        proof: &OracleProof,
+        public_inputs: &[Fr],
+    ) -> Result<bool, ProverError> {
+        let proof =
+            Proof::deserialize_uncompressed(proof.proof_bytes.as_slice())
+                .map_err(|e| ProverError::Deserialize(e.to_string()))?;
 
         Groth16::<Bn254>::verify(&self.verifying_key, public_inputs, &proof)
             .map_err(|e| ProverError::Verify(e.to_string()))
@@ -64,8 +69,9 @@ impl OracleProver {
     pub fn generate_keys() -> Result<Self, ProverError> {
         let circuit = padded_empty_circuit();
         let mut rng = OsRng;
-        let (proving_key, verifying_key) = Groth16::<Bn254>::circuit_specific_setup(circuit, &mut rng)
-            .map_err(|e| ProverError::Setup(e.to_string()))?;
+        let (proving_key, verifying_key) =
+            Groth16::<Bn254>::circuit_specific_setup(circuit, &mut rng)
+                .map_err(|e| ProverError::Setup(e.to_string()))?;
         Ok(Self {
             proving_key,
             verifying_key,
@@ -95,8 +101,9 @@ impl OracleProver {
     ) -> Result<Self, ProverError> {
         let proving_key = ProvingKey::deserialize_uncompressed(proving_key)
             .map_err(|e| ProverError::Deserialize(e.to_string()))?;
-        let verifying_key = VerifyingKey::deserialize_uncompressed(verifying_key)
-            .map_err(|e| ProverError::Deserialize(e.to_string()))?;
+        let verifying_key =
+            VerifyingKey::deserialize_uncompressed(verifying_key)
+                .map_err(|e| ProverError::Deserialize(e.to_string()))?;
         Ok(Self {
             proving_key,
             verifying_key,
@@ -113,10 +120,14 @@ impl OracleProver {
     }
 
     /// Produce a Groth16 proof for the given witness circuit.
-    pub fn prove(&self, circuit: OracleCircuit) -> Result<OracleProof, ProverError> {
+    pub fn prove(
+        &self,
+        circuit: OracleCircuit,
+    ) -> Result<OracleProof, ProverError> {
         let mut rng = OsRng;
-        let proof = Groth16::<Bn254>::prove(&self.proving_key, circuit, &mut rng)
-            .map_err(|e| ProverError::Prove(e.to_string()))?;
+        let proof =
+            Groth16::<Bn254>::prove(&self.proving_key, circuit, &mut rng)
+                .map_err(|e| ProverError::Prove(e.to_string()))?;
 
         let mut proof_bytes = Vec::new();
         proof

@@ -31,14 +31,17 @@ fn main() -> Result<()> {
     io::stdin()
         .read_to_string(&mut json)
         .context("read stdin")?;
-    let input: VerifierInput = serde_json::from_str(&json).context("parse verifier JSON")?;
+    let input: VerifierInput =
+        serde_json::from_str(&json).context("parse verifier JSON")?;
 
     let vk_bytes = if let Some(path) = &args.verifying_key {
         fs::read(path).with_context(|| format!("read {}", path.display()))?
     } else {
-        input
-            .verifying_key
-            .ok_or_else(|| anyhow::anyhow!("verifying_key missing; pass --verifying-key or embed in JSON"))?
+        input.verifying_key.ok_or_else(|| {
+            anyhow::anyhow!(
+                "verifying_key missing; pass --verifying-key or embed in JSON"
+            )
+        })?
     };
 
     let verifier = OracleVerifier::from_bytes(&vk_bytes).context("load vk")?;

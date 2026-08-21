@@ -19,6 +19,6 @@ pub use fetcher::{
     parse_response, Outcome, ParseError, SourceResponse,
 };
 pub use prover::{
-    build_public_inputs, prove_responses, OracleProof, OracleProver, OracleVerifier,
-    ProverError, PublicInputs,
+    build_public_inputs, prove_responses, OracleProof, OracleProver,
+    OracleVerifier, ProverError, PublicInputs,
 };

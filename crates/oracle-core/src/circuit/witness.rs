@@ -37,7 +37,8 @@ pub fn build_witness(
     }
 
     let filtered = remove_outliers(responses, 0.70);
-    let included_ids: HashSet<_> = filtered.iter().map(|r| r.source_id.as_str()).collect();
+    let included_ids: HashSet<_> =
+        filtered.iter().map(|r| r.source_id.as_str()).collect();
 
     let mut source_outcomes = Vec::with_capacity(MAX_SOURCES);
     let mut source_weights = Vec::with_capacity(MAX_SOURCES);
@@ -64,8 +65,7 @@ pub fn build_witness(
 
     let source_count = Some(Fr::from(result.source_count as u64));
 
-    let (yes_weight, total_weight) =
-        scaled_weights(responses, &included_ids);
+    let (yes_weight, total_weight) = scaled_weights(responses, &included_ids);
     let outcome_yes = result.outcome == Outcome::Yes;
     let margin = majority_margin(yes_weight, total_weight, outcome_yes);
     let majority_margin_bits = margin_to_bits(margin);
@@ -132,7 +132,9 @@ fn scaled_weights(
         if !included_ids.contains(response.source_id.as_str()) {
             continue;
         }
-        let weight = (response.confidence.clamp(0.0, 1.0) * CONFIDENCE_SCALE as f64).round() as u64;
+        let weight = (response.confidence.clamp(0.0, 1.0)
+            * CONFIDENCE_SCALE as f64)
+            .round() as u64;
         total = total.saturating_add(weight);
         if response.outcome == Outcome::Yes {
             yes = yes.saturating_add(weight);
@@ -141,7 +143,11 @@ fn scaled_weights(
     (yes, total)
 }
 
-fn majority_margin(yes_weight: u64, total_weight: u64, outcome_yes: bool) -> u64 {
+fn majority_margin(
+    yes_weight: u64,
+    total_weight: u64,
+    outcome_yes: bool,
+) -> u64 {
     let two_yes = yes_weight.saturating_mul(2);
     if outcome_yes {
         two_yes.saturating_sub(total_weight).saturating_sub(1)
@@ -199,9 +205,6 @@ mod tests {
 
     #[test]
     fn disputed_returns_error() {
-        assert!(matches!(
-            build_witness(&[]),
-            Err(WitnessError::Disputed)
-        ));
+        assert!(matches!(build_witness(&[]), Err(WitnessError::Disputed)));
     }
 }

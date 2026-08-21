@@ -16,7 +16,8 @@ pub fn build_public_inputs(
     timestamp: u64,
 ) -> PublicInputs {
     let included = included_source_ids(responses);
-    let included_ids: HashSet<_> = included.iter().map(String::as_str).collect();
+    let included_ids: HashSet<_> =
+        included.iter().map(String::as_str).collect();
     let hash = agreement_hash(responses, &included_ids);
     PublicInputs::from_aggregation(result, hash, timestamp)
 }
@@ -27,8 +28,8 @@ pub fn prove_responses(
     responses: &[SourceResponse],
     timestamp: u64,
 ) -> Result<(OracleProof, PublicInputs), ProverError> {
-    let (circuit, result) =
-        build_witness(responses).map_err(|e| ProverError::Witness(e.to_string()))?;
+    let (circuit, result) = build_witness(responses)
+        .map_err(|e| ProverError::Witness(e.to_string()))?;
     let public_inputs = build_public_inputs(responses, &result, timestamp);
     let proof = prover.prove(circuit)?;
     Ok((proof, public_inputs))

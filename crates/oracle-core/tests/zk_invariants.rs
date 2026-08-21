@@ -6,7 +6,9 @@ use ark_bn254::Fr;
 use ark_relations::r1cs::{ConstraintSynthesizer, ConstraintSystem};
 
 use oracle_core::aggregator::aggregate;
-use oracle_core::circuit::{build_witness, agreement_hash, WitnessError, MAJORITY_MARGIN_BITS};
+use oracle_core::circuit::{
+    agreement_hash, build_witness, WitnessError, MAJORITY_MARGIN_BITS,
+};
 use oracle_core::fetcher::{Outcome, SourceResponse};
 use oracle_core::prover::{OracleProver, PublicInputs};
 use oracle_core::MAX_SOURCES;
@@ -41,10 +43,7 @@ fn z6_witness_matches_aggregate() {
 
 #[test]
 fn z6_rejects_disputed_witness() {
-    assert!(matches!(
-        build_witness(&[]),
-        Err(WitnessError::Disputed)
-    ));
+    assert!(matches!(build_witness(&[]), Err(WitnessError::Disputed)));
 }
 
 #[test]
@@ -132,7 +131,11 @@ fn z7_z8_groth16_verify_invariants() {
     let responses = vec![response("a", Outcome::Yes, 0.9)];
     let (circuit, result) = build_witness(&responses).unwrap();
     let ids: HashSet<_> = ["a"].into_iter().collect();
-    let public = PublicInputs::from_aggregation(&result, agreement_hash(&responses, &ids), 1);
+    let public = PublicInputs::from_aggregation(
+        &result,
+        agreement_hash(&responses, &ids),
+        1,
+    );
     let proof = prover.prove(circuit).unwrap();
     assert!(prover
         .verifier()
