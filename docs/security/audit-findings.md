@@ -80,7 +80,19 @@ Unbounded `Vec` length is O(n) per aggregation. ZK phase will use `MAX_SOURCES =
 
 CLI prints `disputed: true` results without non-zero exit. Downstream could misinterpret output.
 
-**Mitigation:** invariant G3 and operator docs; M5 `/resolve` will reject disputed for settlement. Prover (M3) must refuse to prove disputed markets.
+**Mitigation:** invariant G3; `POST /resolve` returns `409` on disputed markets. Prover refuses disputed witnesses (Z6).
+
+---
+
+## M5 API gate (2026-08-21)
+
+| Check | Result |
+| --- | --- |
+| Auth middleware on `/resolve` | implemented (`ORACLE_API_KEY`) |
+| Rate limit | implemented (token bucket) |
+| Body size cap | implemented (1 MiB) |
+| Disputed → 409 | implemented |
+| Integration tests | `bins/oracle-server/tests/api_integration.rs` |
 
 ---
 
