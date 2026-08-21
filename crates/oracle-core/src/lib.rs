@@ -23,3 +23,4 @@ pub use prover::{
     build_public_inputs, prove_responses, OracleProof, OracleProver,
     OracleVerifier, ProverError, PublicInputs,
 };
+pub use storage::{OracleStore, ReputationRecord, StoredProof, StoreError};
