@@ -18,4 +18,4 @@ pub use fetcher::{
     fetch_all_sources, fetch_all_sources_with_limit, fetch_source,
     parse_response, Outcome, ParseError, SourceResponse,
 };
-pub use prover::{OracleProof, PublicInputs};
+pub use prover::{OracleProof, OracleProver, OracleVerifier, ProverError, PublicInputs};
