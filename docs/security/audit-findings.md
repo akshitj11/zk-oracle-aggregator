@@ -84,6 +84,19 @@ CLI prints `disputed: true` results without non-zero exit. Downstream could misi
 
 ---
 
+## M6 on-chain gate (2026-08-21)
+
+| Check | Result |
+| --- | --- |
+| Invalid proof reverts | Foundry `testInvalidProofReverts` |
+| Double resolve reverts | Foundry `testDoubleResolveReverts` |
+| Public input binding | on-chain check matches Rust order |
+| Mock verifier PoC | `MockGroth16Verifier` for Sepolia dev |
+
+Production mainnet requires a BN254 Groth16 verifier generated from the production trusted setup, not the mock XOR verifier.
+
+---
+
 ## M5 API gate (2026-08-21)
 
 | Check | Result |
@@ -96,7 +109,11 @@ CLI prints `disputed: true` results without non-zero exit. Downstream could misi
 
 ---
 
-## Verified controls
+## M7 regression re-audit (2026-08-21)
+
+Full pipeline M0–M6 re-checked against Phase 1 findings. No regressions in fetcher or aggregator invariants. New surfaces (storage, API, chain) covered by sqlx parameterization, API integration tests, and Foundry invalid-proof tests. Remaining production gap: replace mock verifier before mainnet.
+
+---
 
 - Confidence range validation on parse (F2)
 - BLAKE3 body hash (F1)
