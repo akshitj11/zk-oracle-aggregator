@@ -47,7 +47,8 @@ flowchart LR
   M2 --> M3[M3 ZK prove]
   M3 --> M4[M4 proof archive]
   M4 --> M5[M5 REST API]
-  M5 --> M6[M6 on-chain Sepolia]
+  M5 --> M6[M6 on-chain mock]
+  M6 --> M7[M7 production docs]
 ```
 
-**Current:** M0–M6 are landed (fetch through on-chain mock verifier). M7 production hardening (sources, ceremony, observability) is documented; swap mock verifier before mainnet.
+**Current:** M0–M7 are implemented (fetch through production hardening docs). Mainnet still needs a real BN254 Groth16 verifier, live RPC submitter, and non-mock source URLs.

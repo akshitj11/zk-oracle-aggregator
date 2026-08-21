@@ -1,6 +1,6 @@
 # Architecture
 
-The pipeline is fetch, aggregate, prove, store, serve, settle. M0–M2 implement fetch and aggregate in `oracle-core`. M3 adds Groth16 over the aggregation with a fixed 16-slot circuit, witness builder tied to `aggregate()`, and BN254 prove/verify in `oracle-prover` / `oracle-verifier`. M4 persists proofs in Postgres. M5 exposes REST resolve. M6 verifies on Ethereum.
+The pipeline is fetch, aggregate, prove, store, serve, settle. M0–M7 are implemented in this repo. Mainnet still requires a production Groth16 verifier, live RPC submitter, and real source URLs.
 
 ```mermaid
 flowchart TB
@@ -21,7 +21,7 @@ flowchart TB
 | API server | `oracle-server` | Active (M5) |
 | Aggregator CLI | `oracle-aggregator` | Active |
 | Prover / verifier | `oracle-prover`, `oracle-verifier` | Active (M3) |
-| Chain submitter | `oracle-submitter` | M6 |
+| Chain submitter | `oracle-submitter` | Active (M6 mock calldata) |
 
 ## Aggregation (implemented)
 
@@ -47,6 +47,14 @@ Sources load from TOML (`id`, `url`). `fetch_all_sources_with_limit` runs concur
 
 `oracle-server` loads `AppState` with `OracleStore`, Groth16 keys, and source URLs from TOML. `POST /resolve` runs fetch, `aggregate()`, rejects disputed markets with `409`, then `prove_responses()` and storage. `GET /proof/:market_id` returns stored proofs. `GET /verify/:market_id` re-runs Groth16 verify. Optional `ORACLE_API_KEY` gates mutating routes; rate limiting and 1 MiB body caps apply via middleware.
 
+## On-chain (M6)
+
+`contracts/` ships `PredictionMarketOracle` and `MockGroth16Verifier`. Foundry tests cover valid proof acceptance, invalid proof rejection, and double-resolve guards. `oracle-core::chain` encodes `public_inputs_u256` and mock proof components for dev networks. `oracle-submitter` reads proof JSON and prints or broadcasts `resolveMarket` calldata. Swap `MockGroth16Verifier` for a BN254 Groth16 verifier generated from the same ceremony as Rust `pk`/`vk` before mainnet.
+
+## Production (M7)
+
+`config/sources.prod.example.toml`, `scripts/trusted-setup.sh`, `/metrics` stub, graceful shutdown, and `docs/RELEASE.md` cover operator hardening. Grafana dashboards and live Sepolia broadcast are not shipped yet.
+
 ## Local Postgres
 
 ```bash
@@ -56,4 +64,4 @@ export DATABASE_URL=postgres://oracle:oracle@localhost:5432/oracle
 
 ## Delivery
 
-Remaining work ships as atomic commits on `main`. M4 storage is landed; M5 REST resolve and M6 on-chain verify follow. Run `./scripts/ci-local.sh` before each commit.
+M0–M7 landed on `main`. Remaining production work: real verifier, live submitter, prod source URLs, observability dashboards. Run `./scripts/ci-local.sh` before each commit.

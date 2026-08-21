@@ -1,6 +1,6 @@
 # Security invariants
 
-Statements that must hold for the oracle pipeline to be trustworthy. M0–M3 invariants are **implemented**; M4–M6 entries remain **planned** until those milestones land.
+Statements that must hold for the oracle pipeline to be trustworthy. M0–M7 invariants below are **implemented** unless marked **policy** (operator obligation, not enforced in code).
 
 ## Global
 
@@ -43,11 +43,41 @@ Statements that must hold for the oracle pipeline to be trustworthy. M0–M3 inv
 | Z7 | Groth16 verify succeeds only with correct vk and canonical public input order | implemented |
 | Z8 | Tampered proof bytes or public inputs cause verify to fail | implemented |
 
+## Storage (M4)
+
+| ID | Invariant | Status |
+| --- | --- | --- |
+| S1 | `OracleStore` uses parameterized sqlx queries; no string-built SQL | implemented |
+| S2 | `get_proof` round-trips `proof_bytes` and `PublicInputs` for a `market_id` | implemented |
+| S3 | `save_source_responses` stores per-source `raw_hash` linked to `proof_id` | implemented |
+| S4 | `update_reputation` / `get_reputation` maintain bounded `current_weight` in `[0, 1]` | implemented |
+
+## API (M5)
+
+| ID | Invariant | Status |
+| --- | --- | --- |
+| P1 | `POST /resolve` without valid `ORACLE_API_KEY` returns 401 | implemented |
+| P2 | Disputed aggregation returns 409 and does not persist a proof | implemented |
+| P3 | Request bodies are capped at 1 MiB | implemented |
+| P4 | Rate limit exhaustion returns 429 | implemented |
+| P5 | `GET /verify/:market_id` re-runs Groth16 verify on stored proof bytes | implemented |
+
+## On-chain (M6)
+
+| ID | Invariant | Status |
+| --- | --- | --- |
+| C1 | `public_inputs_u256` encodes `(outcome, source_count)` in canonical order for Solidity | implemented |
+| C2 | `MockGroth16Verifier` accepts only proofs whose `c[0]` matches the XOR commitment of public inputs | implemented |
+| C3 | `PredictionMarketOracle` rejects invalid proofs and double resolve on the same `market_id` | implemented |
+| C4 | Production deployments use a BN254 Groth16 verifier from the same ceremony as Rust `pk`/`vk` | policy |
+
 ## Entry points (audit scope)
 
 | Component | Entry | Trust |
 | --- | --- | --- |
 | `oracle-fetcher` | HTTP GET to configured URLs | Untrusted network |
 | `oracle-aggregator` | stdin JSON `Vec<SourceResponse>` | Untrusted until validated |
-| `oracle-server` | `GET /health` | Public read |
-| `oracle-prover` / `oracle-verifier` | CLI (M3) | Prover is semi-trusted; verifier is trustless |
+| `oracle-server` | REST (`/health` public; `/resolve` authenticated) | Untrusted callers on mutating routes |
+| `oracle-prover` / `oracle-verifier` | CLI | Prover is semi-trusted; verifier is trustless |
+| `oracle-submitter` | proof JSON + RPC (optional) | Operator-trusted calldata builder |
+| `PredictionMarketOracle` | `resolveMarket` calldata | Untrusted submitters; contract trusts vk only |

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/akshitj11/zk-oracle-aggregator/actions/workflows/ci.yaml/badge.svg)](https://github.com/akshitj11/zk-oracle-aggregator/actions/workflows/ci.yaml)
 
-Prediction markets settle on oracle output. When that output comes from a token vote, one whale can pick the winner. This repo fetches N independent feeds, aggregates with outlier removal and a weighted median, and attaches a Groth16 proof (BN254) so verification does not depend on trusting the operator. M0–M5 cover fetch, aggregate, prove, Postgres archive, and REST resolve. On-chain verify (M6) and production hardening (M7) follow.
+Prediction markets settle on oracle output. Token-vote oracles let one whale pick the winner. This repo fetches up to 16 independent feeds, aggregates with outlier removal and weighted median, proves the computation in Groth16 (BN254), archives proofs in Postgres, serves REST resolve, and settles on-chain through a mock Solidity verifier. M0–M7 are implemented. Mainnet still needs a real BN254 verifier, live RPC broadcast from `oracle-submitter`, and non-mock source URLs.
 
 ## Quick start
 
@@ -25,7 +25,7 @@ psql "$DATABASE_URL" -f migrations/001_init.sql
 
 ## Binaries
 
-`oracle-fetcher` hits configured URLs concurrently (max 16 sources). `oracle-aggregator` reads `SourceResponse[]` JSON from stdin. `oracle-prover` reads the same JSON, builds a witness from `aggregate()`, and prints a Groth16 proof with public inputs. `oracle-verifier` checks proof JSON on stdin. `oracle-server` exposes `GET /health`, `GET /proof/:market_id`, `GET /reputation/:source_id`, `GET /verify/:market_id`, and `POST /resolve`. Set `DATABASE_URL`, optional `ORACLE_API_KEY`, and `SOURCES_CONFIG`. `oracle-submitter` is a stub until M6.
+`oracle-fetcher` hits configured URLs concurrently (max 16 sources). `oracle-aggregator` reads `SourceResponse[]` JSON from stdin. `oracle-prover` reads the same JSON, builds a witness from `aggregate()`, and prints a Groth16 proof with public inputs. `oracle-verifier` checks proof JSON on stdin. `oracle-server` exposes `GET /health`, `GET /proof/:market_id`, `GET /reputation/:source_id`, `GET /verify/:market_id`, and `POST /resolve`. Set `DATABASE_URL`, optional `ORACLE_API_KEY`, and `SOURCES_CONFIG`. `oracle-submitter` builds `resolveMarket` calldata from proof JSON; without `ETH_RPC_URL` it prints calldata only.
 
 Prove and verify locally:
 

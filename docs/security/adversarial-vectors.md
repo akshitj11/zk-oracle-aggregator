@@ -1,6 +1,6 @@
 # Adversarial vectors
 
-Attack scenarios mapped to tests. **implemented** = covered in CI today; **planned** = future milestone.
+Attack scenarios mapped to tests. **implemented** = covered in CI today; **manual** = operator audit path without an automated test.
 
 ## Fetcher
 
@@ -10,7 +10,7 @@ Attack scenarios mapped to tests. **implemented** = covered in CI today; **plann
 | Confidence &gt; 1.0 | `InvalidConfidence` | `fetcher::parse_rejects_invalid_confidence` | implemented |
 | Confidence &lt; 0.0 | `InvalidConfidence` | `security_adversarial::parse_rejects_negative_confidence` | implemented |
 | HTTP 500 / timeout | Source omitted from results | `fetcher::fetch_all_sources_skips_failed` | implemented |
-| Body hash mismatch (audit) | Off-chain compare `raw_hash` vs recomputed BLAKE3 | manual / M4 storage | planned |
+| Body hash at fetch | `raw_hash` is BLAKE3 of HTTP body (F1) | `fetcher` unit tests | implemented |
 
 ## Aggregator
 
@@ -36,11 +36,15 @@ Attack scenarios mapped to tests. **implemented** = covered in CI today; **plann
 | Tampered proof bytes | Verify fails | `prover_roundtrip::tampered_proof_bytes_fail_verify` | implemented |
 | Tampered public inputs | Verify fails | `prover_roundtrip::tampered_public_inputs_fail_verify` | implemented |
 | Groth16 round-trip | Valid proof verifies | `zk_invariants::z7_z8_groth16_verify_invariants` | implemented |
-| Body hash mismatch (audit) | Off-chain compare `raw_hash` vs BLAKE3 | M4 storage | planned |
 
-## CI
+## Storage (M4)
 
-All rows marked **implemented** run in `cargo test --workspace` on every PR.
+| Vector | Expected behavior | Test | Status |
+| --- | --- | --- | --- |
+| Proof round-trip | `save_proof` / `get_proof` preserve bytes and public inputs | `storage::save_and_get_proof_round_trip` | implemented |
+| Source response archive | `raw_hash` stored per source with `proof_id` | `storage::save_source_responses_links_to_proof` | implemented |
+| Prove pipeline persistence | Resolve path writes proof + responses | `storage_prove_pipeline::prove_then_save_and_reload` | implemented |
+| Refetch hash audit | Compare stored `raw_hash` to new BLAKE3 of body | operator refetch | manual |
 
 ## API (M5)
 
@@ -49,3 +53,17 @@ All rows marked **implemented** run in `cargo test --workspace` on every PR.
 | Missing API key | 401 on `/resolve` | `api_integration::auth_rejects_missing_key` | implemented |
 | Disputed market | 409, no proof stored | `api_integration::resolve_disputed_returns_409` | implemented |
 | Rate limit exceeded | 429 | `api_integration::rate_limit_returns_429` | implemented |
+| Full resolve pipeline | Proof stored and `/verify` passes | `api_integration::verify_stored_proof_after_resolve` | implemented |
+
+## On-chain (M6)
+
+| Vector | Expected behavior | Test | Status |
+| --- | --- | --- | --- |
+| Valid mock proof | `resolved(marketId)` true | `PredictionMarketOracleTest::testValidProofAccepts` | implemented |
+| Invalid proof | `InvalidProof` revert | `PredictionMarketOracleTest::testInvalidProofReverts` | implemented |
+| Double resolve | `AlreadyResolved` revert | `PredictionMarketOracleTest::testDoubleResolveReverts` | implemented |
+| Calldata encoding | `public_inputs_u256` matches contract `uint256[2]` | `chain_encoding::mock_proof_matches_public_inputs` | implemented |
+
+## CI
+
+Rows marked **implemented** run in `cargo test --workspace` and `forge test` on every PR.
