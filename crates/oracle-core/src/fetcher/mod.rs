@@ -96,7 +96,16 @@ pub async fn fetch_source(
                 let body = resp.text().await.ok()?;
                 let hash = *blake3::hash(body.as_bytes()).as_bytes();
                 let fetched_at = unix_now();
-                return parse_response(source_id, &body, hash, fetched_at).ok();
+                match parse_response(source_id, &body, hash, fetched_at) {
+                    Ok(response) => return Some(response),
+                    Err(err) => {
+                        tracing::warn!(
+                            source_id,
+                            %err,
+                            "dropping source response after parse failure"
+                        );
+                    }
+                }
             }
             _ => {
                 if attempt < retries {
