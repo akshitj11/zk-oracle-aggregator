@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install stable toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
       - name: cargo build
         run: cargo b --workspace --all-targets --all-features
@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install stable toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
           components: rustfmt
 
@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install stable toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
           components: clippy
 
@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install stable toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
       - name: Cargo doc test
         run: cargo doc --workspace --all-features
@@ -86,7 +86,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install stable toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
       - name: Cargo test doc
         run: cargo test --doc --workspace --all-features
@@ -119,10 +119,10 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install stable toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
       - name: Install cargo-nextest
-        uses: taiki-e/install-action@v2.87.3
+        uses: taiki-e/install-action@v2.87.8
         with:
           tool: cargo-nextest
 
@@ -146,7 +146,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install Typos
-        uses: taiki-e/install-action@v2.87.3
+        uses: taiki-e/install-action@v2.87.8
         with:
           tool: typos-cli
 
@@ -162,7 +162,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install Taplo
-        uses: taiki-e/install-action@v2.87.3
+        uses: taiki-e/install-action@v2.87.8
         with:
           tool: taplo-cli
 
@@ -236,7 +236,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install stable toolchain
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        uses: actions-rust-lang/setup-rust-toolchain@v2
 
       - name: Run prove-verify smoke
         run: ./scripts/prove-verify-smoke.sh
